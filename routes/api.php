@@ -14,6 +14,22 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+$corsGroup = [
+    'readOnly'  => 'cors:GET,OPTIONS',  // item yg read only cuman bsa GET sama OPTIONS
+    'singleItem'=> 'cors:GET,PUT,DELETE,OPTIONS,PATCH', // single item bsa macem2
+    'all'       => 'cors:*',    // klo bisa jgn pake ini ya
+    'resourceGroup'  => 'cors:GET,POST,OPTIONS' // group bisa diinsert, dilihat, dicek
+];
+
+// Kayaknya bagusnya digroup per endpoints dah
+// OPTIONS /* untuk menghandle preflight CORS request
+Route::options('/{fuckers}', 'ApiController@options')
+        ->where('fuckers', '.+')
+        ->middleware('cors:GET,POST,PUT,DELETE,OPTIONS,PATCH,HEAD');
+
+// TEST
+Route::get('/sso', 'SSOUserCacheController@index')
+->middleware($corsGroup['resourceGroup'], 'role');
+
+Route::get('/sso/{id}', 'SSOUserCacheController@show')
+->middleware($corsGroup['singleItem'], 'role');

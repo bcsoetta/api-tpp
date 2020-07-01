@@ -2,6 +2,11 @@
 
 namespace App\Providers;
 
+use App\Lampiran;
+use App\Observers\LampiranObserver;
+use App\Services\SSO;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -13,7 +18,13 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        //
+        // try to register it?
+        $this->app->bind(SSO::class, function () {
+            // resolve for request object
+            $request = app(Request::class);
+
+            return new SSO($request);
+        });
     }
 
     /**
@@ -23,6 +34,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        // set it cause mysql would explode otherwise
+        Schema::defaultStringLength(191);
+
+        // obeservers
+        Lampiran::observe(LampiranObserver::class);
     }
 }
