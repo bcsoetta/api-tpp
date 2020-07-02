@@ -16,6 +16,12 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable
     // settings
     protected $table = 'entry_manifest';
 
+    protected $guarded = [
+        'created_at',
+        'updated_at',
+        'deleted_at'
+    ];
+
     // relations
     public function tps() {
         return $this->belongsTo(TPS::class, 'tps_id');

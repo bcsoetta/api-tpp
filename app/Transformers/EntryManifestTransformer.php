@@ -7,6 +7,7 @@ use League\Fractal\TransformerAbstract;
 class EntryManifestTransformer extends TransformerAbstract {
 
     protected $availableIncludes = [
+        'keterangan',
         'tps',
         'bcp',
         'status',
@@ -16,6 +17,7 @@ class EntryManifestTransformer extends TransformerAbstract {
     ];
 
     protected $defaultIncludes = [
+        'keterangan',
         'tps',
         'bcp',
         'status',
@@ -41,6 +43,12 @@ class EntryManifestTransformer extends TransformerAbstract {
             'nama_importir' => $m->nama_importir,
             'alamat_importir' => $m->alamat_importir
         ];
+    }
+
+    public function includeKeterangan(EntryManifest $m) {
+        $k = $m->keterangan;
+
+        return $this->collection($k, new KeteranganTransformer);
     }
 
     public function includeTps(EntryManifest $m) {
