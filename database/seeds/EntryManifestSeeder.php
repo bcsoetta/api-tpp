@@ -49,6 +49,11 @@ class EntryManifestSeeder extends Seeder
             $e->tps()->associate(TPS::inRandomOrder()->first());
 
             $e->save();
+
+            // Add Detail barang
+            $e->detailBarang()->create([
+                'uraian' => $faker->sentence()
+            ]);
         }
 
         echo "EntryManifest seeded.\n";

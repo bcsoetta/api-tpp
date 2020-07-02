@@ -34,7 +34,7 @@ class CreateEntryManifestTable extends Migration
             $table->string('nama_importir')->index();
             $table->text('alamat_importir');
 
-            $table->unsignedInteger('tps_id');
+            $table->unsignedInteger('tps_id')->nullable(); // utk brg dr P2, gk ada TPS Awal
 
             $table->timestamps();
             $table->softDeletes();

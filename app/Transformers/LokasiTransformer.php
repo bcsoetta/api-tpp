@@ -9,7 +9,7 @@ class LokasiTransformer extends TransformerAbstract {
         return [
             'id' => (int) $l->id,
             'kode' => $l->kode,
-            'deskripsi' => $l->deskripsi
+            'nama' => $l->nama
         ];
     }
 }

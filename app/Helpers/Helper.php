@@ -376,3 +376,24 @@ if (!function_exists('splitDatetime')) {
     return $split ? $split['date'] : null;
   }
 }
+
+if (!function_exists('spawnTransformer')) {
+  /**
+   * this function returns a new instance of transformer for a particular object
+   * or null if it's unable to
+   */
+  function spawnTransformer($object) {
+
+    $baseclassname = class_basename($object);
+
+    if ($baseclassname) {
+      $transformerName = "App\\Transformers\\$baseclassname" . "Transformer";
+      
+      if (class_exists($transformerName)) {
+        return new $transformerName;
+      }
+    }
+
+    return null;
+  }
+}

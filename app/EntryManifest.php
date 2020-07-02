@@ -5,11 +5,12 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EntryManifest extends Model implements INotable, IHasGoods
+class EntryManifest extends Model implements INotable, IHasGoods, ITrackable
 {
     use TraitStatusable;
     use TraitNotable;
     use TraitHasGoods;
+    use TraitTrackable;
     
     use SoftDeletes;
     // settings

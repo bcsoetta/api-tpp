@@ -16,6 +16,11 @@ class Lokasi extends Model
 
     protected $attributes = [
         'kode' => '',
-        'deskripsi' => ''
+        'nama' => ''
     ];
+
+    // scope
+    public function scopeByKode($query, $kode) {
+        return $query->where('kode', $kode);
+    }
 }

@@ -18,7 +18,7 @@ class CreateLokasiTable extends Migration
 
             // just kode and name
             $table->string('kode', 8)->unique();
-            $table->text('deskripsi');
+            $table->text('nama');
 
             $table->timestamps();
         });

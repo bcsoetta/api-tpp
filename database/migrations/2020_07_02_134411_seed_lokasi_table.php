@@ -17,7 +17,12 @@ class SeedLokasiTable extends Migration
         // Just insert a KNOWN new location
         Lokasi::create([
             'kode' => 'P2SH',
-            'deskripsi' => 'Gudang penyimpanan barang SBP P2 Soetta'
+            'nama' => 'Gudang penyimpanan barang SBP P2 Soetta'
+        ]);
+
+        Lokasi::create([
+            'kode' => 'TPPSH',
+            'nama' => 'Gudang Tempat Penimbunan Pabean BC Soetta'
         ]);
     }
 

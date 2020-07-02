@@ -10,14 +10,16 @@ class EntryManifestTransformer extends TransformerAbstract {
         'tps',
         'bcp',
         'status',
-        'barang'
+        'barang',
+        'tracking'
     ];
 
     protected $defaultIncludes = [
         'tps',
         'bcp',
         'status',
-        'barang'
+        'barang',
+        'tracking'
     ];
 
     public function transform(EntryManifest $m) {
@@ -42,7 +44,9 @@ class EntryManifestTransformer extends TransformerAbstract {
     public function includeTps(EntryManifest $m) {
         $t = $m->tps;
 
-        return $this->item($t, new TPSTransformer);
+        if ($t) {
+            return $this->item($t, new TPSTransformer);
+        }
     }
 
     public function includeBcp(EntryManifest $m) {
@@ -63,5 +67,11 @@ class EntryManifestTransformer extends TransformerAbstract {
         $b = $m->detailBarang;
 
         return $this->collection($b, new DetailBarangTransformer);
+    }
+
+    public function includeTracking(EntryManifest $m) {
+        $t = $m->tracking()->latest()->orderBy('id', 'desc')->get();
+
+        return $this->collection($t, new TrackingTransformer);
     }
 }
