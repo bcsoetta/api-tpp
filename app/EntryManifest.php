@@ -3,10 +3,13 @@
 namespace App;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EntryManifest extends Model
+class EntryManifest extends Model implements INotable
 {
     use TraitStatusable;
+    use TraitNotable;
+    use SoftDeletes;
     // settings
     protected $table = 'entry_manifest';
 
