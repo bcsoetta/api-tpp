@@ -9,13 +9,15 @@ class EntryManifestTransformer extends TransformerAbstract {
     protected $availableIncludes = [
         'tps',
         'bcp',
-        'status'
+        'status',
+        'barang'
     ];
 
     protected $defaultIncludes = [
         'tps',
         'bcp',
-        'status'
+        'status',
+        'barang'
     ];
 
     public function transform(EntryManifest $m) {
@@ -55,5 +57,11 @@ class EntryManifestTransformer extends TransformerAbstract {
         $s = $m->statusOrdered();
 
         return $this->collection($s, new StatusTransformer);
+    }
+
+    public function includeBarang(EntryManifest $m) {
+        $b = $m->detailBarang;
+
+        return $this->collection($b, new DetailBarangTransformer);
     }
 }
