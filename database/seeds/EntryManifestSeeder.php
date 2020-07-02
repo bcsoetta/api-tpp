@@ -39,7 +39,7 @@ class EntryManifestSeeder extends Seeder
                 'mawb' => strtoupper($faker->bothify("************")),
                 'hawb' => strtoupper($faker->bothify("************")),
 
-                'uraian' => $faker->text(),
+                // 'uraian' => $faker->text(),
 
                 'nama_importir' => $faker->company,
                 'alamat_importir' => $faker->address
@@ -52,7 +52,7 @@ class EntryManifestSeeder extends Seeder
 
             // Add Detail barang
             $e->detailBarang()->create([
-                'uraian' => $faker->sentence()
+                'uraian' => $faker->text()
             ]);
         }
 

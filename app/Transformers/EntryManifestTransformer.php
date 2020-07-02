@@ -35,7 +35,7 @@ class EntryManifestTransformer extends TransformerAbstract {
             'brutto' => (float) $m->brutto,
             'mawb' => $m->mawb,
             'hawb' => $m->hawb,
-            'uraian' => $m->uraian,
+            // 'uraian' => $m->uraian,
             'nama_importir' => $m->nama_importir,
             'alamat_importir' => $m->alamat_importir
         ];

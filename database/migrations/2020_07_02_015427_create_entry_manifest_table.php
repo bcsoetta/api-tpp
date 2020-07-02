@@ -29,7 +29,7 @@ class CreateEntryManifestTable extends Migration
             $table->string('mawb')->index();
             $table->string('hawb')->index();
 
-            $table->text('uraian');
+            // $table->text('uraian');
 
             $table->string('nama_importir')->index();
             $table->text('alamat_importir');
