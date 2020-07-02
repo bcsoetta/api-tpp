@@ -43,3 +43,6 @@ Route::get('/tps/{kode}', 'TPSController@showByKode')
 
 Route::get('/awb', 'EntryManifestController@index')
 ->middleware($corsGroup['resourceGroup']);
+
+Route::get('/awb/{id}', 'EntryManifestController@show')
+->middleware($corsGroup['singleItem']);

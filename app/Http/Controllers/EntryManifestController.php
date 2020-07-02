@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\EntryManifest;
 use App\Transformers\EntryManifestTransformer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Throwable;
 
 class EntryManifestController extends ApiController
 {
@@ -16,9 +18,11 @@ class EntryManifestController extends ApiController
         $from = $r->get('from') ?? $r->get('tgl_awal');
         $to = $r->get('to') ?? $r->get('tgl_akhir');
         $bcp = $r->get('bcp');
-        $tps = $r->get('tps');
+        $tps = $r->get('tps') ?? $r->get('gudang');
 
         $has_bcp = $r->get('has_bcp');
+
+        $status = $r->get('status');
 
         $query = EntryManifest::query()
             ->when($awb, function ($query) use ($awb) {
@@ -49,6 +53,9 @@ class EntryManifestController extends ApiController
                     $query->belumBCP();
                 }
             })
+            ->when($status, function ($query) use ($status) {
+                $query->byLastStatus($status);
+            })
             ->latest()
             ->orderBy('id', 'desc')
         ;
@@ -56,5 +63,18 @@ class EntryManifestController extends ApiController
         $paginator = $query->paginate($r->get('number', 10))
                             ->appends($r->except('page'));
         return $this->respondWithPagination($paginator, new EntryManifestTransformer);
+    }
+
+    // show by id
+    public function show(Request $r, $id) {
+        try {
+            $m = EntryManifest::findOrFail($id);
+
+            return $this->respondWithItem($m, new EntryManifestTransformer);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorNotFound("Data AWB dengan id #$id tidak ditemukan");
+        } catch (Throwable $e) {
+            return $this->errorBadRequest($e->getMessage());
+        }
     }
 }

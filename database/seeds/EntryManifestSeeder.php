@@ -16,7 +16,7 @@ class EntryManifestSeeder extends Seeder
         // spawn a faker
         $faker = Faker\Factory::create();
 
-        $num = random_int(10, 32);
+        $num = random_int(10, 132);
         $i=0;
 
         echo "Generating $num random EntryManifest...\n";

@@ -13,6 +13,7 @@ class BCPSeeder extends Seeder
      */
     public function run()
     {
+        $faker = Faker\Factory::create();
         // generate less than all entry manifest
         $n = random_int(2, EntryManifest::count());
 
@@ -20,16 +21,26 @@ class BCPSeeder extends Seeder
 
         $i = 0;
         while ($i++ < $n) {
-            // spawn a BCP
-            $b = new BCP([
-                'tgl_dok' => date('Y-m-d'),
-                'jenis' => 'BTD'
-            ]);
+            $m = EntryManifest::belumBCP()->inRandomOrder()->first();
+            
+            if ($m) {
+                // spawn a BCP
+                $b = new BCP([
+                    'tgl_dok' => date('Y-m-d'),
+                    'jenis' => $faker->randomElement(['BTD','BDN'])
+                ]);
+                // associate em?
+                $m->bcp()->save($b);
+                $b->setNomorDokumen();
+                $m->appendStatus('GATEIN');
+            }
 
-            $b->entryManifest()->associate(EntryManifest::belumBCP()->inRandomOrder()->first());
+            // $b->entryManifest()->associate(EntryManifest::belumBCP()->inRandomOrder()->first());
 
-            $b->save();
-            $b->setNomorDokumen();
+            // $b->save();
+
+            // update status of entryManifest too
+            // $b->entryManifest()
         }
 
         echo "BCP generated.\n";

@@ -14,6 +14,11 @@ class TPS extends Model
         'updated_at'
     ];
 
+    // relations
+    public function entryManifest() {
+        return $this->hasMany(EntryManifest::class, 'tps_id');
+    }
+
     // scopes
     public function scopeByKode($query, $kode) {
         return $query->where('kode', $kode);
