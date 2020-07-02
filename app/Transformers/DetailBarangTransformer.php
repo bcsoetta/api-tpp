@@ -10,7 +10,7 @@ class DetailBarangTransformer extends TransformerAbstract {
             'id' => (int) $d->id,
             'uraian' => $d->uraian,
             'jumlah' => !is_null($d->jumlah) ? (float) $d->jumlah : null,
-            'jenis' => $d->koli
+            'jenis' => $d->jenis
         ];
     }
 }

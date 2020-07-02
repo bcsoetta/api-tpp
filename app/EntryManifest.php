@@ -25,6 +25,10 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable
         return $this->hasOne(BCP::class, 'entry_manifest_id');
     }
 
+    public function pencacahan() {
+        return $this->hasOne(Pencacahan::class, 'entry_manifest_id');
+    }
+
     // scopes
     public function scopeWild($query, $q) {
         return $query->awb($q)

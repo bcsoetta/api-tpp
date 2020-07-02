@@ -11,7 +11,8 @@ class EntryManifestTransformer extends TransformerAbstract {
         'bcp',
         'status',
         'barang',
-        'tracking'
+        'tracking',
+        'pencacahan'
     ];
 
     protected $defaultIncludes = [
@@ -19,7 +20,8 @@ class EntryManifestTransformer extends TransformerAbstract {
         'bcp',
         'status',
         'barang',
-        'tracking'
+        'tracking',
+        'pencacahan'
     ];
 
     public function transform(EntryManifest $m) {
@@ -58,7 +60,7 @@ class EntryManifestTransformer extends TransformerAbstract {
     }
 
     public function includeStatus(EntryManifest $m) {
-        $s = $m->statusOrdered();
+        $s = $m->status;
 
         return $this->collection($s, new StatusTransformer);
     }
@@ -70,8 +72,16 @@ class EntryManifestTransformer extends TransformerAbstract {
     }
 
     public function includeTracking(EntryManifest $m) {
-        $t = $m->tracking()->latest()->orderBy('id', 'desc')->get();
+        $t = $m->tracking;
 
         return $this->collection($t, new TrackingTransformer);
+    }
+
+    public function includePencacahan(EntryManifest $m) {
+        $p = $m->pencacahan;
+
+        if ($p) {
+            return $this->item($p, new PencacahanTransformer);
+        }
     }
 }
