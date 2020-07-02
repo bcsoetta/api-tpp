@@ -33,3 +33,10 @@ Route::get('/sso', 'SSOUserCacheController@index')
 
 Route::get('/sso/{id}', 'SSOUserCacheController@show')
 ->middleware($corsGroup['singleItem'], 'role');
+
+// TPS API
+Route::get('/tps', 'TPSController@index')
+->middleware($corsGroup['resourceGroup']);
+
+Route::get('/tps/{kode}', 'TPSController@showByKode')
+->middleware($corsGroup['singleItem']);
