@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\EntryManifest;
 use App\Lampiran;
+use App\Observers\EntryManifestObserver;
 use App\Observers\LampiranObserver;
 use App\Services\SSO;
 use Illuminate\Http\Request;
@@ -39,5 +41,6 @@ class AppServiceProvider extends ServiceProvider
 
         // obeservers
         Lampiran::observe(LampiranObserver::class);
+        EntryManifest::observe(EntryManifestObserver::class);
     }
 }
