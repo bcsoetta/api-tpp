@@ -46,12 +46,12 @@ class CheckRole
         // if at least one role is specified, test for that
         if (count($roleNames) > 0) {
             // perhaps this user has no role in that app
-            if (!array_key_exists('5', $userInfo['apps_data'])) {
+            if (!array_key_exists('11', $userInfo['apps_data'])) {
                 // he has no role what so ever..but he is required to have
-                return $api->errorForbidden("You have no role in this application (SiBAPE). Contact Administrator for further assistance!");
+                return $api->errorForbidden("You have no role in this application (TePePe). Contact Administrator for further assistance!");
             }
 
-            $userRoles = $userInfo['apps_data']['5']['roles'] ?? [];
+            $userRoles = $userInfo['apps_data']['11']['roles'] ?? [];
 
             $matchingRoles = array_intersect($userRoles, $roleNames);
 

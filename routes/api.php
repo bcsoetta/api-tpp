@@ -41,8 +41,13 @@ Route::get('/tps', 'TPSController@index')
 Route::get('/tps/{kode}', 'TPSController@showByKode')
 ->middleware($corsGroup['singleItem']);
 
+// ENTRY MANIFEST/AWB
 Route::get('/awb', 'EntryManifestController@index')
 ->middleware($corsGroup['resourceGroup']);
 
 Route::get('/awb/{id}', 'EntryManifestController@show')
 ->middleware($corsGroup['singleItem']);
+
+// EXCEL API
+Route::post('/excel/dataawal', 'ExcelController@importDataAwal')
+->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');

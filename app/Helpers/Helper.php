@@ -55,7 +55,7 @@ if (!function_exists('getUserInfo')) {
         // mockup token dengan mockup data usernya
         $mockupUsers = [
             // mockup profil pdtt
-            'token_pdtt'  => [
+            'token_pelaksana'  => [
                 "user_id" => "572",
                 "username" => "setiadi.001",
                 "name" => "Setiadi",
@@ -75,6 +75,12 @@ if (!function_exists('getUserInfo')) {
                       "PDTT",
                     ],
                   ],
+                  11 => [
+                    "app_name" => "TePePe",
+                    "roles" => [
+                      "PELAKSANA"
+                    ]
+                  ]
                 ],
               ],
 
@@ -114,6 +120,12 @@ if (!function_exists('getUserInfo')) {
                       "CONSOLE",
                     ],
                   ],
+                  11 => [
+                    "app_name" => "TePePe",
+                    "roles" => [
+                      "CONSOLE"
+                    ]
+                  ]
                 ],
               ],
 
@@ -176,17 +188,17 @@ if (!function_exists('userHasRole')) {
             return false;
         }
 
-        if (!array_key_exists('5', $userInfo['apps_data'])) {
+        if (!array_key_exists('11', $userInfo['apps_data'])) {
             return false;
         }
 
         // check existence of key 'role'
-        if (!array_key_exists('roles', $userInfo['apps_data']['5'])) {
+        if (!array_key_exists('roles', $userInfo['apps_data']['11'])) {
             return false;
         }
 
         // okay, find it
-        return in_array($roleName, $userInfo['apps_data']['5']['roles']);
+        return in_array($roleName, $userInfo['apps_data']['11']['roles']);
     }
 }
 
