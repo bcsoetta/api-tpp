@@ -36,12 +36,22 @@ class DataAwalImport implements ToModel, WithHeadingRow
             'alamat_importir' => (string) $row['alamat_importir']
         ]);
 
-        // read data barang
+        // read data barang, first, grab string source
+        $source = $row['uraian'] ?? $row['uraian_barang'];
+
+        // split them
+        $arrSource = explode(";", $source);
+
+        // build them
         $detailBarang = [
-            new DetailBarang([
+            /* new DetailBarang([
                 'uraian' => $row['uraian'] ?? $row['uraian_barang']
-            ])
+            ]) */
         ];
+
+        foreach ($arrSource as $desc) {
+            $detailBarang[] = DetailBarang::fromString($desc);
+        }
 
         // read keterangan
         $keterangan = [];
