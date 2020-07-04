@@ -4,7 +4,7 @@ namespace App\Http\Middleware;
 
 use League\Fractal;
 use App\Http\Controllers\ApiController;
-
+use App\SSOUserCache;
 use Closure;
 
 class CheckRole
@@ -65,6 +65,17 @@ class CheckRole
         // store user info on a request?
         // $request->merge(['sso_user' => $userInfo]);
         $request->userInfo = $userInfo;
+
+        // also update sso user cache before we go on
+        $sso_user_cache = SSOUserCache::updateOrCreate([
+            'user_id' => $userInfo['user_id'],
+            'username' => $userInfo['username'],
+            'name' => $userInfo['name'],
+            'nip' => $userInfo['nip'],
+            'pangkat' => $userInfo['pangkat'] ?? '',
+            'penempatan' => $userInfo['penempatan'] ?? '',
+            'status' => $userInfo['status']
+        ]);
 
         // pass role check. continue
         return $next($request);
