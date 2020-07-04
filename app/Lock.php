@@ -18,4 +18,8 @@ class Lock extends Model
     public function lockable() {
         return $this->morphTo();
     }
+
+    public function petugas() {
+        return $this->belongsTo(SSOUserCache::class, 'petugas_id', 'user_id');
+    }
 }
