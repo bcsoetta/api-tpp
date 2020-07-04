@@ -43,6 +43,15 @@ Route::get('/tps', 'TPSController@index')
 Route::get('/tps/{kode}', 'TPSController@showByKode')
 ->middleware($corsGroup['singleItem'], 'role');
 
+Route::post('/tps', 'TPSController@store')
+->middleware($corsGroup['resourceGroup'], 'role:CONSOLE');
+
+Route::put('/tps/{id}', 'TPSController@update')
+->middleware($corsGroup['singleItem'], 'role:CONSOLE');
+
+Route::delete('/tps/{id}', 'TPSController@destroy')
+->middleware($corsGroup['singleItem'], 'role:CONSOLE');
+
 // ENTRY MANIFEST/AWB
 // ====================================================
 Route::get('/awb', 'EntryManifestController@index')
