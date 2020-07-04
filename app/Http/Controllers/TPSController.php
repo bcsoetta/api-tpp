@@ -17,6 +17,11 @@ class TPSController extends ApiController
                     $query->where('kode', 'like', "%$q%")
                         ->orWhere('nama', 'like', "%$q%");
                 });
+        
+        // what if it's special query?
+        if ($r->get('siap_penetapan') == true) {
+            $query = TPS::siapPenetapan();
+        }
 
         $paginator = $query->paginate($r->get('number', 10))
                         ->appends($r->except('page'));

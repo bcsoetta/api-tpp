@@ -5,12 +5,13 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class EntryManifest extends Model implements INotable, IHasGoods, ITrackable
+class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, ILockable
 {
     use TraitStatusable;
     use TraitNotable;
     use TraitHasGoods;
     use TraitTrackable;
+    use TraitLockable;
     
     use SoftDeletes;
     // settings
@@ -82,5 +83,11 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable
 
     public function scopeSudahBCP($query) {
         return $query->whereHas('bcp');
+    }
+
+    // siap penetapan := doesnthave BCP and unlocked
+    public function scopeSiapPenetapan($query) {
+        return $query->whereDoesnthave('bcp')
+                    ->unlocked();
     }
 }

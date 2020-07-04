@@ -46,10 +46,10 @@ Route::get('/tps/{kode}', 'TPSController@showByKode')
 // ENTRY MANIFEST/AWB
 // ====================================================
 Route::get('/awb', 'EntryManifestController@index')
-->middleware($corsGroup['resourceGroup']);
+->middleware($corsGroup['resourceGroup'],'role');
 
 Route::get('/awb/{id}', 'EntryManifestController@show')
-->middleware($corsGroup['singleItem']);
+->middleware($corsGroup['singleItem'],'role');
 
 // EXCEL API
 // ====================================================
