@@ -19,6 +19,7 @@ class EntryManifestController extends ApiController
         $to = $r->get('to') ?? $r->get('tgl_akhir');
         $bcp = $r->get('bcp');
         $tps = $r->get('tps') ?? $r->get('gudang');
+        $tps_id = $r->get('tps_id');
 
         $has_bcp = $r->get('has_bcp');
 
@@ -45,6 +46,11 @@ class EntryManifestController extends ApiController
             })
             ->when($tps, function ($query) use ($tps) {
                 $query->tps($tps);
+            })
+            ->when($tps_id, function ($query) use ($tps_id) {
+                $query->whereHas('tps', function ($query) use ($tps_id) {
+                    $query->where('id', $tps_id);
+                });
             })
             ->when($has_bcp, function ($query) use ($has_bcp) {
                 if ($has_bcp == 'true') {

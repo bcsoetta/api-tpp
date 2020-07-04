@@ -28,6 +28,7 @@ Route::options('/{fuckers}', 'ApiController@options')
         ->middleware('cors:GET,POST,PUT,DELETE,OPTIONS,PATCH,HEAD');
 
 // TEST
+// ====================================================
 Route::get('/sso', 'SSOUserCacheController@index')
 ->middleware($corsGroup['resourceGroup'], 'role');
 
@@ -35,6 +36,7 @@ Route::get('/sso/{id}', 'SSOUserCacheController@show')
 ->middleware($corsGroup['singleItem'], 'role');
 
 // TPS API
+// ====================================================
 Route::get('/tps', 'TPSController@index')
 ->middleware($corsGroup['resourceGroup']);
 
@@ -42,6 +44,7 @@ Route::get('/tps/{kode}', 'TPSController@showByKode')
 ->middleware($corsGroup['singleItem']);
 
 // ENTRY MANIFEST/AWB
+// ====================================================
 Route::get('/awb', 'EntryManifestController@index')
 ->middleware($corsGroup['resourceGroup']);
 
@@ -49,5 +52,6 @@ Route::get('/awb/{id}', 'EntryManifestController@show')
 ->middleware($corsGroup['singleItem']);
 
 // EXCEL API
+// ====================================================
 Route::post('/excel/dataawal', 'ExcelController@importDataAwal')
 ->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');

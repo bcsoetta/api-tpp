@@ -4,9 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class BCP extends Model implements IDokumen
+class BCP extends Model implements IDokumen, ILockable
 {
     use TraitDokumen;
+    use TraitLockable;
     // settings
     protected $table = 'bcp';
 

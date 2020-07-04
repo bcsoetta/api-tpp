@@ -9,28 +9,6 @@ trait TraitDokumen
     // all dokumen can have lampiran so use its trait
     use TraitAttachable;
     
-    // default locking mechanism
-    public function lock(){
-        // if we're locked, do nothing
-        if ($this->is_locked)
-            return $this->is_locked;
-
-        // bagusnya dikasih transaction guard biar 
-        // databasenya selalu ACID
-        
-        $this->appendStatus('CLOSED');
-        $this->setNomorDokumen();
-        return $this->is_locked;
-    }
-
-    public function unlock(){
-        if(!$this->is_locked)
-            return !$this->is_locked;
-
-        $this->appendStatus('OPEN');
-        return !$this->is_locked;
-    }
-
     public function appendStatus($name, $lokasi = null, $keterangan = null, $linkable = null, $other_data = null) {
         // Better to create the status instance first
         $s = new Status(['status' => $name, 'lokasi' => $lokasi]);
@@ -52,10 +30,6 @@ trait TraitDokumen
         }
 
         return $s->refresh();
-    }
-
-    public function getIsLockedAttribute(){
-        return isset($this->last_status) ? $this->last_status->status == 'CLOSED' : false; 
     }
 
     public function setNomorDokumen($force = false){
@@ -139,59 +113,6 @@ trait TraitDokumen
 
     public function statusOrdered() {
         return $this->status()->latest()->orderBy('id', 'desc')->get();
-    }
-
-    public function billing() {
-        return $this->morphMany('App\Billing', 'billable');
-    }
-
-    public function bpj() {
-        return $this->morphOne('App\BPJ', 'guaranteeable');
-    }
-
-    public function dokkap() {
-        return $this->morphMany('App\Dokkap', 'master');
-    }
-
-    public function syncDokkap($arr_dokkap) {
-        if (!is_array($arr_dokkap)) {
-            throw new \Exception("Data dokkap harus berupa array, walaupun kosong!");
-        }
-
-        // so it's an array, let's sync it
-        // 1st, update all valid ones (with non-null ids)
-        $toUpdate = array_filter($arr_dokkap, function ($e) { return $e['id'] != null; });
-
-        // update em
-        foreach ($toUpdate as $d) {
-            $dokkap = Dokkap::findOrFail($d['id']);
-
-            $dokkap->nomor_lengkap_dok = $d['nomor_lengkap'];
-            $dokkap->tgl_dok = $d['tgl_dok'];
-            $dokkap->jenis_dokkap_id = $d['jenis_dokkap_id'];
-
-            $dokkap->save();
-        }
-
-        // 2nd, delete everything that is not included
-        $newIds = array_map(function ($e) { return $e['id']; }, $toUpdate);
-        $this->dokkap()->whereNotIn('id', $newIds)->delete();
-
-        // 3rd, add new dokkap
-        $toInsert = array_filter($arr_dokkap, function ($e) { return $e['id'] == null; });
-
-        foreach ($toInsert as $d) {
-            $dokkap = new Dokkap([
-                'no_dok' => 0,
-                'nomor_lengkap_dok' => $d['nomor_lengkap'],
-                'tgl_dok' => $d['tgl_dok'],
-                'jenis_dokkap_id' => $d['jenis_dokkap_id']
-            ]);
-
-            $dokkap->master()->associate($this);
-
-            $dokkap->save();
-        }
     }
 
     /**

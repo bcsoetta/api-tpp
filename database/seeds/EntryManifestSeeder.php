@@ -2,6 +2,7 @@
 
 use App\EntryManifest;
 use App\TPS;
+use App\Tracking;
 use Illuminate\Database\Seeder;
 
 class EntryManifestSeeder extends Seeder
@@ -49,6 +50,12 @@ class EntryManifestSeeder extends Seeder
             $e->tps()->associate(TPS::inRandomOrder()->first());
 
             $e->save();
+
+            // Add tracking according to its tps
+            $t = new Tracking();
+            $t->trackable()->associate($e);
+            $t->lokasi()->associate($e->tps);
+            $t->save();
 
             // Add Detail barang
             $e->detailBarang()->create([
