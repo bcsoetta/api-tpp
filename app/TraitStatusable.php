@@ -2,6 +2,22 @@
 namespace App;
 
 trait TraitStatusable {
+    public function getLastStatusAttribute(){
+        return $this->status()->latest()->orderBy('id', 'desc')->first();
+    }
+
+    public function getShortLastStatusAttribute() {
+        $ls = $this->last_status;
+        if ($ls) {
+            return [
+                'status'    => $ls->status,
+                'created_at'=> (string) $ls->created_at
+            ];
+        }
+
+        return null;
+    }
+
     public function status() {
         return $this->morphMany('App\Status', 'statusable');
     }
