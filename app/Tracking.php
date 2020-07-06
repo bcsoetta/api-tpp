@@ -48,4 +48,11 @@ class Tracking extends Model
                 )
                 ->select(['*']);
     }
+
+    public function scopeLokasi($query, $lokasi) {
+        return $query->where([
+            'lokasi_type' => get_class($lokasi),
+            'lokasi_id' => $lokasi->id
+        ]);
+    }
 }
