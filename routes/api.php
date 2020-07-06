@@ -60,6 +60,9 @@ Route::get('/awb', 'EntryManifestController@index')
 Route::get('/awb/{id}', 'EntryManifestController@show')
 ->middleware($corsGroup['singleItem'],'role');
 
+Route::post('/awb', 'EntryManifestController@postFromExcel')
+->middleware($corsGroup['resourceGroup'], 'role:PELAKSANA,CONSOLE');
+
 // EXCEL API
 // ====================================================
 Route::post('/excel/dataawal', 'ExcelController@importDataAwal')

@@ -2,10 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\DetailBarang;
 use App\EntryManifest;
+use App\Keterangan;
+use App\SSOUserCache;
+use App\TPS;
+use App\Tracking;
 use App\Transformers\EntryManifestTransformer;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use PDOException;
 use Throwable;
 
 class EntryManifestController extends ApiController
@@ -80,6 +87,81 @@ class EntryManifestController extends ApiController
         } catch (ModelNotFoundException $e) {
             return $this->errorNotFound("Data AWB dengan id #$id tidak ditemukan");
         } catch (Throwable $e) {
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    /**
+     * post data from parsed excel data, with following format:
+     * {
+     *  tps_id: 2,
+     *  entry_manifest: [
+     *   EntryManifest + Keterangan + Detail Barang
+     *  ]
+     * }
+     * */ 
+    public function postFromExcel(Request $r) {
+        DB::beginTransaction();
+        try {
+            // grab TPS Instance
+            $tps = TPS::byKode($r->get('tps_kode'))->first();
+
+            $total = 0;
+
+            // loop over all entry_manifest
+            $ems = $r->get('entry_manifest', []);
+
+            foreach ($ems as $em) {
+                $barangs = $em['barang']['data'];
+                $keterangans = $em['keterangan']['data'];
+
+                // unset it 
+                unset($em['keterangan']);
+                unset($em['barang']);
+                unset($em['status']);
+                unset($em['tracking']);
+
+                // insert entry_manifest
+                $m = new EntryManifest($em);
+                $m->tps()->associate($tps);
+                $m->save();
+
+                // insert keterangan
+                foreach ($keterangans as $keterangan) {
+                    $k = new Keterangan($keterangan);
+                    $m->keterangan()->save($k);
+                }
+
+                // insert barang?
+                foreach ($barangs as $brg) {
+                    $b = new DetailBarang($brg);
+                    $m->detailBarang()->save($b);
+                }
+
+                // update tracking location to tps 
+                $t = new Tracking();
+                $t->petugas()->associate(SSOUserCache::byId($r->userInfo['user_id']));
+                $t->trackable()->associate($m);
+                $t->lokasi()->associate($tps);
+                $t->save();
+
+                ++$total;
+            }
+
+            //code...
+            DB::commit();
+
+            return $this->respondWithArray([
+                'inserted' => $total,
+                'tps_id' => $tps->id
+            ]);
+        } catch (PDOException $e) {
+            DB::rollBack();
+
+            return $this->errorBadRequest("Duplikat HAWB/MAWB pada baris ke: " . ($total+1));
+        } catch (\Throwable $e) {
+            DB::rollBack();
+
             return $this->errorBadRequest($e->getMessage());
         }
     }
