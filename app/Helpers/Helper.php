@@ -409,3 +409,13 @@ if (!function_exists('spawnTransformer')) {
     return null;
   }
 }
+
+if (!function_exists('stringifyQuery')) {
+  function stringifyQuery($q) {
+    $bindings = array_map(function ($e) {
+      // replace \ with double \\
+      return preg_replace('/\\\\/si', '\\\\\\\\', $e);
+    }, $q->getBindings());
+    return vsprintf(str_replace(array('?'), array('\'%s\''), $q->toSql()), $bindings);
+  }
+}
