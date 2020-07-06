@@ -28,7 +28,10 @@ class TPS extends Model
     // static helper
     public static function siapPenetapan() {
         return TPS::whereHas('entryManifest', function ($q) { $q->siapPenetapan(); })
-            ->join('entry_manifest', 'entry_manifest.tps_id', '=', 'tps.id')
+            ->join('entry_manifest', function ($join) {
+                $join->on('entry_manifest.tps_id', '=', 'tps.id');
+            })
+            ->whereNull('entry_manifest.deleted_at')
             ->select('tps.*', DB::raw('count(*) as total'))
             ->groupBy('tps.id');
     }

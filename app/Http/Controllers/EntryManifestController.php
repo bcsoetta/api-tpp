@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\AppLog;
 use App\DetailBarang;
 use App\EntryManifest;
 use App\Keterangan;
@@ -162,6 +163,27 @@ class EntryManifestController extends ApiController
         } catch (\Throwable $e) {
             DB::rollBack();
 
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    /**
+     * Delete an EntryManifest
+     */
+    public function destroy(Request $r, $id) {
+        try {
+            // find it first
+            $m = EntryManifest::findOrFail($id);
+
+            AppLog::logInfo("HAWB #$id dihapus oleh ".$r->userInfo['username'], $m);
+
+            $m->delete();
+
+            return $this->setStatusCode(204)
+                        ->respondWithEmptyBody();
+        } catch (ModelNotFoundException $e) {
+            return $this->errorNotFound("HAWB #$id tidak ditemukan");
+        } catch (\Throwable $e) {
             return $this->errorBadRequest($e->getMessage());
         }
     }

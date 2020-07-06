@@ -11,6 +11,7 @@ abstract class AbstractDokumen extends Model implements IDokumen, IStatusable, I
     use TraitStatusable;
     use TraitLockable;
     use TraitAttachable;
+    use TraitLoggable;
 
     abstract public function getJenisDokumenAttribute();
     abstract public function getJenisDokumenLengkapAttribute();

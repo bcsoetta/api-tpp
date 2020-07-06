@@ -63,6 +63,12 @@ Route::get('/awb/{id}', 'EntryManifestController@show')
 Route::post('/awb', 'EntryManifestController@postFromExcel')
 ->middleware($corsGroup['resourceGroup'], 'role:PELAKSANA,CONSOLE');
 
+Route::get('/tps/{kode}/siap_penetapan', 'TPSController@indexAwbSiapPenetapan')
+->middleware($corsGroup['resourceGroup'], 'role:PELAKSANA,CONSOLE');
+
+Route::delete('/awb/{id}', 'EntryManifestController@destroy')
+->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
+
 // EXCEL API
 // ====================================================
 Route::post('/excel/dataawal', 'ExcelController@importDataAwal')

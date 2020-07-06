@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\TPS;
+use App\Transformers\EntryManifestTransformer;
 use App\Transformers\TPSTransformer;
 use Highlight\Mode;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -13,16 +14,17 @@ class TPSController extends ApiController
     public function index(Request $r) {
         $q = $r->get('q');
 
-        $query = TPS::query()
-                ->when($q, function ($query) use ($q) {
-                    $query->where('kode', 'like', "%$q%")
-                        ->orWhere('nama', 'like', "%$q%");
-                });
+        $query = TPS::query();
         
         // what if it's special query?
         if ($r->get('siap_penetapan') == true) {
             $query = TPS::siapPenetapan();
         }
+
+        $query = $query->when($q, function ($query) use ($q) {
+            $query->where('kode', 'like', "%$q%")
+                ->orWhere('nama', 'like', "%$q%");
+        });
 
         $paginator = $query->paginate($r->get('number', 10))
                         ->appends($r->except('page'));
@@ -100,6 +102,29 @@ class TPSController extends ApiController
                         ->respondWithEmptyBody();
         } catch (ModelNotFoundException $e) {
             return $this->errorNotFound("TPS #{$id} was not found");
+        } catch (\Throwable $e) {
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    public function indexAwbSiapPenetapan(Request $r, $kode) {
+        try {
+            // what is it?
+            $t = TPS::byKode($kode)->first();
+
+            if (!$t) {
+                throw new ModelNotFoundException("TPS $kode was not found!");
+            }
+
+            // index all that is not yet defined
+            $query = $t->entryManifest()->siapPenetapan();
+
+            $paginator = $query->paginate($r->get('number', 10))
+                                ->appends($r->except('page'));
+            
+            return $this->respondWithPagination($paginator, new EntryManifestTransformer);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorNotFound($e->getMessage());
         } catch (\Throwable $e) {
             return $this->errorBadRequest($e->getMessage());
         }
