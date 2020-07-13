@@ -27,13 +27,16 @@ Route::options('/{fuckers}', 'ApiController@options')
         ->where('fuckers', '.+')
         ->middleware('cors:GET,POST,PUT,DELETE,OPTIONS,PATCH,HEAD');
 
-// TEST
+// SSO, USER-RELATED
 // ====================================================
 Route::get('/sso', 'SSOUserCacheController@index')
 ->middleware($corsGroup['resourceGroup'], 'role');
 
 Route::get('/sso/{id}', 'SSOUserCacheController@show')
 ->middleware($corsGroup['singleItem'], 'role');
+
+Route::get('/kasi', 'SSOUserCacheController@getKasi')
+->middleware($corsGroup['resourceGroup'],'role');
 
 // TPS API
 // ====================================================

@@ -10,7 +10,7 @@ class SSO {
     public function __construct(Request $r)
     {
         $this->sso = new Broker(
-            'http://sso.soetta.xyz/',
+            'http://sso.bcsoetta.org/',
             '11',
             't3mp4tbu4n94ir'
         ); 

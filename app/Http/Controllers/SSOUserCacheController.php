@@ -52,4 +52,30 @@ class SSOUserCacheController extends ApiController
             return $this->errorBadRequest($e->getMessage());
         }
     }
+
+    public function getKasi(Request $r) {
+        try {
+            // grab all user who has role pemeriksa
+            $data = $this->sso->getUserByRole(['tpp.kasi'], false);
+
+            // modify it a bit
+            $q = $r->get('q');
+
+            if ($q && strlen(trim($q)) > 0) {
+                // refine by name?
+                $data['data'] = array_values(array_filter($data['data'], function ($e) use ($q) {
+                    $pattern = "/$q/i";
+
+                    return preg_match($pattern, $e['name']) || preg_match($pattern, $e['nip']);
+                }));
+
+                // remove key?
+                
+            }
+
+            return $this->respondWithArray($data);
+        } catch (\Exception $e) {
+            return $this->errorBadRequest($e->getMessage() . ' Code: ' . $e->getCode());
+        }
+    }
 }
