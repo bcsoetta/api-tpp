@@ -76,3 +76,11 @@ Route::delete('/awb/{id}', 'EntryManifestController@destroy')
 // ====================================================
 Route::post('/excel/dataawal', 'ExcelController@importDataAwal')
 ->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
+
+// PENETAPAN
+// ====================================================
+Route::get('/penetapan', 'PenetapanController@index')
+->middleware($corsGroup['resourceGroup'],'role');
+
+Route::put('/tps/{kode}/penetapan', 'PenetapanController@store')
+->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
