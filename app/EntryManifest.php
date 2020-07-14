@@ -37,6 +37,10 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $this->hasOne(Pencacahan::class, 'entry_manifest_id');
     }
 
+    public function penetapan() {
+        return $this->belongsToMany(Penetapan::class, 'penetapan_detail', 'entry_manifest_id', 'penetapan_id')->withTimestamps();
+    }
+
     // scopes
     public function scopeWild($query, $q) {
         return $query->awb($q)
@@ -88,7 +92,9 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
 
     // siap penetapan := doesnthave BCP and unlocked
     public function scopeSiapPenetapan($query) {
-        return $query->whereDoesnthave('bcp')
+        /* return $query->whereDoesnthave('bcp')
+                    ->unlocked(); */
+        return $query->whereDoesntHave('penetapan')
                     ->unlocked();
     }
 }

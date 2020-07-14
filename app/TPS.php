@@ -27,12 +27,20 @@ class TPS extends Model
 
     // static helper
     public static function siapPenetapan() {
-        return TPS::whereHas('entryManifest', function ($q) { $q->siapPenetapan(); })
-            ->join('entry_manifest', function ($join) {
-                $join->on('entry_manifest.tps_id', '=', 'tps.id');
-            })
-            ->whereNull('entry_manifest.deleted_at')
-            ->select('tps.*', DB::raw('count(*) as total'))
-            ->groupBy('tps.id');
+
+        // grab all entry manifest ready for penetapan (summarized)
+        $q2 = EntryManifest::siapPenetapan()
+            ->groupBy('tps_id')
+            ->select(DB::raw('COUNT(*) total'), 'tps_id');
+
+        $q2string = "(" . stringifyQuery($q2) . ") t2";
+        
+        $q1 = TPS::query()
+            ->select('tps.*', 't2.total')
+            ->join(DB::raw($q2string), function($join) {
+                $join->on('tps.id', '=', 't2.tps_id');
+            });
+
+        return $q1;
     }
 }
