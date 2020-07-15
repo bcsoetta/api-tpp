@@ -19,7 +19,10 @@ class PenetapanTransformer extends TransformerAbstract {
         return [
             'id' => (int) $p->id,
             'nomor_lengkap' => $p->nomor_lengkap_dok,
-            'tgl_dok' => $p->tgl_dok
+            'tgl_dok' => $p->tgl_dok,
+            'total_entry_manifest' => (int) $p->entryManifest()->count(),
+            'total_gate_in' => (int) $p->gate_in_count,
+            'total_belum_gate_in' => (int) $p->not_gated_in_count
         ];
     }
 

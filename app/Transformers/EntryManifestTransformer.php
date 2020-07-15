@@ -27,6 +27,7 @@ class EntryManifestTransformer extends TransformerAbstract {
     ];
 
     public function transform(EntryManifest $m) {
+
         return [
             'id' => (int) $m->id,
             'no_bc11' => (int) $m->no_bc11,
@@ -41,7 +42,9 @@ class EntryManifestTransformer extends TransformerAbstract {
             'hawb' => $m->hawb,
             // 'uraian' => $m->uraian,
             'nama_importir' => $m->nama_importir,
-            'alamat_importir' => $m->alamat_importir
+            'alamat_importir' => $m->alamat_importir,
+
+            'last_tracking' => $m->last_tracking->lokasi ?? null
         ];
     }
 

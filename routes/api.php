@@ -60,6 +60,9 @@ Route::delete('/tps/{id}', 'TPSController@destroy')
 Route::get('/awb', 'EntryManifestController@index')
 ->middleware($corsGroup['resourceGroup'],'role');
 
+Route::get('/awb/siap_gate_in', 'EntryManifestController@indexSiapGateIn')
+->middleware($corsGroup['resourceGroup'], 'role');
+
 Route::get('/awb/{id}', 'EntryManifestController@show')
 ->middleware($corsGroup['singleItem'],'role');
 

@@ -90,11 +90,20 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $query->whereHas('bcp');
     }
 
-    // siap penetapan := doesnthave BCP and unlocked
+    // siap penetapan := doesnthave Penetapan and unlocked
     public function scopeSiapPenetapan($query) {
         /* return $query->whereDoesnthave('bcp')
                     ->unlocked(); */
         return $query->whereDoesntHave('penetapan')
+                    ->unlocked();
+    }
+
+    // siap gatein := have penetapan and location is not TPP yet
+    public function scopeSiapGateIn($query) {
+        return $query->whereHas('penetapan')
+                    ->where(function ($q) {
+                        $q->byLastTrackingOtherThan(Lokasi::find(2));
+                    })
                     ->unlocked();
     }
 }
