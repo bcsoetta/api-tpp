@@ -54,7 +54,7 @@ class BCP extends AbstractDokumen
             return $this->nomor_lengkap_dok;
         }
 
-        $nomorLengkap = $this->skema_penomoran . '/'. str_pad( $this->no_dok, 6, '0', STR_PAD_LEFT );
+        $nomorLengkap = $this->skema_penomoran . '/'. str_pad( $this->no_dok, 5, '0', STR_PAD_LEFT );
         return $nomorLengkap;
     }
 }
