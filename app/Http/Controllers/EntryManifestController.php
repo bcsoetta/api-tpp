@@ -6,6 +6,7 @@ use App\AppLog;
 use App\DetailBarang;
 use App\EntryManifest;
 use App\Keterangan;
+use App\Lokasi;
 use App\SSOUserCache;
 use App\TPS;
 use App\Tracking;
@@ -249,5 +250,53 @@ class EntryManifestController extends ApiController
         $paginator = $query->paginate($r->get('number', 10))
                             ->appends($r->except('page'));
         return $this->respondWithPagination($paginator, new EntryManifestTransformer);
+    }
+
+    /**
+     * storeGateIn
+     * mark AWB as gated in
+     */
+    public function storeGateIn(Request $r, $id) {
+        DB::beginTransaction();
+
+        try {
+            // first, grab the awb
+            $m = EntryManifest::findOrFail($id);
+
+            // gotta check if it's already gated in?
+            $lastLoc = $m->last_tracking->lokasi;
+            $tpp = Lokasi::find(2);
+
+            if (get_class($lastLoc) == get_class($tpp) && $lastLoc->id == $tpp->id) {
+                // already in TPP!! BAIL!!
+                throw new \Exception("AWB ini sudah ada di tpp!");
+            }
+
+            // safe to continue
+            // first, update status
+            $m->appendStatus('GATE-IN');
+
+            // next, update tracking info
+            $t = new Tracking();
+            $t->lokasi()->associate($tpp);
+            $t->petugas()->associate(SSOUserCache::byId($r->userInfo['user_id']));
+            $t->trackable()->associate($m);
+            $t->save();
+
+            // log it?
+            AppLog::logInfo("AWB #{$id} telah di gate-in oleh {$r->userInfo['username']}", $m, false);
+
+            DB::commit();
+
+            // return empty
+            return $this->setStatusCode(204)
+                        ->respondWithEmptyBody();
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return $this->errorNotFound("Entry Manifest #{$id} was not found");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return $this->errorBadRequest($e->getMessage());
+        }
     }
 }
