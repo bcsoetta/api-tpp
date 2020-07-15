@@ -3,15 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\AppLog;
-use App\Penetapan;
+use App\BAST;
 use App\SSOUserCache;
 use App\TPS;
-use App\Transformers\EntryManifestTransformer;
-use App\Transformers\PenetapanTransformer;
+use App\Transformers\BASTTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
-class PenetapanController extends ApiController
+class BASTController extends ApiController
 {
     /**
      * Display a listing of the resource.
@@ -20,15 +19,16 @@ class PenetapanController extends ApiController
      */
     public function index(Request $r)
     {
+        // show em all?
         // query?
         $q = $r->get('q');
         $from = $r->get('from');
         $to = $r->get('to');
 
-        $query = Penetapan::query()
+        $query = BAST::query()
             ->when($q, function ($query) use ($q) {
                 $query->where('nomor_lengkap_dok', 'like', "%$q%")
-                    ->orWhereHas('pejabat', function ($q2) use ($q) {
+                    ->orWhereHas('petugas', function ($q2) use ($q) {
                         $q2->where('name', 'like', "%$q%")
                             ->orWhere('nip', 'like', "%$q%");
                     });
@@ -45,37 +45,7 @@ class PenetapanController extends ApiController
         $paginator = $query->paginate($r->get('number'))
                             ->appends($r->except('page'));
 
-        return $this->respondWithPagination($paginator, new PenetapanTransformer);
-    }
-
-    /**
-     * indexAwb
-     * list all awb belong to this penetapan
-     */
-    public function indexAwb(Request $r, $id) {
-        try {
-            $p = Penetapan::findOrFail($id);
-
-            $q = $r->get('q');
-            $from = $r->get('from');
-            $to = $r->get('to');
-
-            $query = $p->entryManifest()
-                    ->when($q, function ($query) use ($q) {
-                        $query->wild($q);
-                    })
-                    ->when($from, function ($query) use ($from) {
-                        $query->from($from);
-                    })
-                    ->when($to, function ($query) use ($to) {
-                        $query->to($to);
-                    });
-            $paginator = $query->paginate($r->get('number'))
-                                ->appends($r->except('page'));
-            return $this->respondWithPagination($paginator, new EntryManifestTransformer);
-        } catch (\Throwable $e) {
-            return $this->errorBadRequest($e->getMessage());
-        }
+        return $this->respondWithPagination($paginator, new BASTTransformer);
     }
 
     /**
@@ -86,6 +56,7 @@ class PenetapanController extends ApiController
      */
     public function store(Request $r, $kdTps)
     {
+        // gotta copy from the other side though
         // store penetapan
         DB::beginTransaction();
         try {
@@ -95,48 +66,53 @@ class PenetapanController extends ApiController
                 throw new \Exception("TPS {$kdTps} tidak ditemukan");
             }
 
-            // cache pejabat_id
-            $pejabat_id = expectSomething($r->get('pejabat_id'), "Pejabat Penetapan");
-
-            SSOUserCache::byId($pejabat_id);
+            // cache petugas_id?
+            $petugas_id = $r->userInfo['user_id'];
+            SSOUserCache::byId($petugas_id);
 
             // ok, now we make a new Penetapan
-            $p = new Penetapan([
-                'kode_kantor'   => '050100',
+            // $p = new Penetapan([
+            //     'kode_kantor'   => '050100',
+            //     'nomor_lengkap_dok' => strtoupper(trim($r->get('nomor_lengkap_dok'))),
+            //     'tgl_dok' => expectSomething($r->get('tgl_dok'), 'Tanggal Surat Penetapan'),
+            //     'pejabat_id' => $pejabat_id
+            // ]);
+            $b = new BAST([
+                'kode_kantor' => '050100',
                 'nomor_lengkap_dok' => strtoupper(trim($r->get('nomor_lengkap_dok'))),
                 'tgl_dok' => expectSomething($r->get('tgl_dok'), 'Tanggal Surat Penetapan'),
-                'pejabat_id' => $pejabat_id
+                'petugas_id' => $petugas_id
             ]);
 
             // save it
-            $p->save();
-            $p->appendStatus('CREATED');
+            $b->save();
+            $b->appendStatus('CREATED');
 
             // if number is empty, assign it
-            if (!$p->nomor_lengkap_dok) {
-                $p->setNomorDokumen();
+            if (!$b->nomor_lengkap_dok) {
+                $b->setNomorDokumen();
             }
 
             // lock it?
-            $p->lock()->create([
+            $b->lock()->create([
                 'keterangan' => "Penetapan BTD untuk tps {$kdTps}",
                 'petugas_id' => $r->userInfo['user_id']
             ]);
-            $p->appendStatus('LOCKED');
+            $b->appendStatus('LOCKED');
 
             // log it?
-            AppLog::logInfo("Penetapan #{$p->id} direkam oleh {$r->userInfo['username']}", $p, false);
+            AppLog::logInfo("BAST #{$b->id} direkam oleh {$r->userInfo['username']}", $b, false);
 
             // now we fill the assignment
-            $ms = $tps->entryManifest()->siapPenetapan()->get();
+            $ms = $tps->entryManifest()->siapRekamBAST()->get();
 
             // for each of them, add to penetapan
             foreach ($ms as $m) {
                 // add to penetapan
-                $p->entryManifest()->save($m);
+                $b->entryManifest()->save($m);
 
                 // append status
-                $m->appendStatus('PENETAPAN', null, null, $p);
+                $m->appendStatus('BAST', null, null, $b);
             }
 
             // commit
@@ -144,7 +120,7 @@ class PenetapanController extends ApiController
 
             // return info on how many was assigned
             return $this->respondWithArray([
-                'id' => (int) $p->id,
+                'id' => (int) $b->id,
                 'total' => count($ms)
             ]);
         } catch (\Throwable $e) {

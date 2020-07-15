@@ -43,4 +43,21 @@ class TPS extends Model
 
         return $q1;
     }
+
+    public static function siapRekamBAST() {
+        // grab all entry manifest ready for penetapan (summarized)
+        $q2 = EntryManifest::siapRekamBAST()
+            ->groupBy('tps_id')
+            ->select(DB::raw('COUNT(*) total'), 'tps_id');
+
+        $q2string = "(" . stringifyQuery($q2) . ") t2";
+        
+        $q1 = TPS::query()
+            ->select('tps.*', 't2.total')
+            ->join(DB::raw($q2string), function($join) {
+                $join->on('tps.id', '=', 't2.tps_id');
+            });
+
+        return $q1;
+    }
 }

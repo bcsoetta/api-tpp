@@ -41,6 +41,10 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $this->belongsToMany(Penetapan::class, 'penetapan_detail', 'entry_manifest_id', 'penetapan_id')->withTimestamps();
     }
 
+    public function bast() {
+        return $this->belongsToMany(BAST::class, 'bast_detail', 'entry_manifest_id', 'bast_id')->withTimestamps();
+    }
+
     // scopes
     public function scopeWild($query, $q) {
         return $query->awb($q)
@@ -105,5 +109,13 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
                         $q->byLastTrackingOtherThan(Lokasi::find(2));
                     })
                     ->unlocked();
+    }
+
+    // siap rekam bast := lasttracking in tpp, and has no bast yet
+    public function scopeSiapRekamBAST($query) {
+        return $query->whereDoesntHave('bast')
+                    ->where(function ($q) {
+                        $q->byLastTracking(Lokasi::find(2));
+                    });
     }
 }

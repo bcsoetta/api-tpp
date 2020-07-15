@@ -19,6 +19,8 @@ class TPSController extends ApiController
         // what if it's special query?
         if ($r->get('siap_penetapan') == true) {
             $query = TPS::siapPenetapan();
+        } else if ($r->get('siap_rekam_bast') == true) {
+            $query = TPS::siapRekamBAST();
         }
 
         $query = $query->when($q, function ($query) use ($q) {
@@ -118,6 +120,29 @@ class TPSController extends ApiController
 
             // index all that is not yet defined
             $query = $t->entryManifest()->siapPenetapan();
+
+            $paginator = $query->paginate($r->get('number', 10))
+                                ->appends($r->except('page'));
+            
+            return $this->respondWithPagination($paginator, new EntryManifestTransformer);
+        } catch (ModelNotFoundException $e) {
+            return $this->errorNotFound($e->getMessage());
+        } catch (\Throwable $e) {
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    public function indexAwbSiapRekamBAST(Request $r, $kode) {
+        try {
+            // what is it?
+            $t = TPS::byKode($kode)->first();
+
+            if (!$t) {
+                throw new ModelNotFoundException("TPS $kode was not found!");
+            }
+
+            // index all that is not yet defined
+            $query = $t->entryManifest()->siapRekamBAST();
 
             $paginator = $query->paginate($r->get('number', 10))
                                 ->appends($r->except('page'));

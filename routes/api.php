@@ -67,6 +67,10 @@ Route::delete('/tps/{id}', 'TPSController@destroy')
 Route::get('/tps/{kode}/siap_penetapan', 'TPSController@indexAwbSiapPenetapan')
 ->middleware($corsGroup['resourceGroup'], 'role:PELAKSANA,CONSOLE');
 
+// index all TPS that has AWB ready for rekam BAST
+Route::get('/tps/{kode}/siap_rekam_bast', 'TPSController@indexAwbSiapRekamBAST')
+->middleware($corsGroup['resourceGroup'], 'role:PELAKSANA,CONSOLE');
+
 // ENTRY MANIFEST/AWB
 // ====================================================
 // index all awb, latest to oldest
@@ -101,6 +105,9 @@ Route::post('/excel/dataawal', 'ExcelController@importDataAwal')
 Route::get('/penetapan', 'PenetapanController@index')
 ->middleware($corsGroup['resourceGroup'],'role');
 
+Route::get('/penetapan/{id}/awb', 'PenetapanController@indexAwb')
+->middleware($corsGroup['resourceGroup'], 'role');
+
 // store all AWB from particular TPS into penetapan
 Route::put('/tps/{kode}/penetapan', 'PenetapanController@store')
 ->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
@@ -110,3 +117,13 @@ Route::put('/tps/{kode}/penetapan', 'PenetapanController@store')
 // gate in an AWB based on id
 Route::put('/awb/{id}/gate-in', 'EntryManifestController@storeGateIn')
 ->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
+
+// BAST
+// ====================================================
+// index all bast
+Route::get('/bast', 'BASTController@index')
+->middleware($corsGroup['resourceGroup'], 'role');
+
+// store all AWB from particular TPS into bast
+Route::put('/tps/{kode}/bast', 'BASTController@store')
+->middleware($corsGroup['resourceGroup'], 'role:PELAKSANA,CONSOLE');
