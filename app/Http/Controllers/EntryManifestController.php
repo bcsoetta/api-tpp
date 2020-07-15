@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\AppLog;
+use App\BCP;
 use App\DetailBarang;
 use App\EntryManifest;
 use App\Keterangan;
@@ -283,14 +284,24 @@ class EntryManifestController extends ApiController
             $t->trackable()->associate($m);
             $t->save();
 
+            // assign BCP for this entry
+            $b = $m->bcp()->create([
+                'kode_kantor' => '050100',
+                'tgl_dok' => date('Y-m-d'),
+                'jenis' => 'BTD'
+            ]);
+            $b->setNomorDokumen();
+
             // log it?
             AppLog::logInfo("AWB #{$id} telah di gate-in oleh {$r->userInfo['username']}", $m, false);
 
             DB::commit();
 
             // return empty
-            return $this->setStatusCode(204)
-                        ->respondWithEmptyBody();
+            return $this->respondWithArray([
+                'id' => (int) $m->id,
+                'bcp' => $b->nomor_lengkap_dok
+            ]);
         } catch (ModelNotFoundException $e) {
             DB::rollBack();
             return $this->errorNotFound("Entry Manifest #{$id} was not found");
