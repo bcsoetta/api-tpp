@@ -55,4 +55,24 @@ class Penetapan extends AbstractDokumen
             . $this->tahun_dok;
         return $nomorLengkap;
     }
+
+    public function getGateInCountAttribute() {
+        return $this->entryManifest()->byLastTracking(Lokasi::find(2))->count();
+    }
+    
+    public function getNotGatedInCountAttribute() {
+        return $this->entryManifest()->byLastTrackingOtherThan(Lokasi::find(2))->count();
+    }
+
+    public function getGateInPercentageAttribute() {
+        // check total entry
+        $totalEntryManifest = $this->entryManifest()->count();
+        if (!$totalEntryManifest) {
+            return 0;
+        }
+
+        // compute how many has gone into gate / total
+        $totalGateIn = $this->gate_in_count;
+        return (float) $totalGateIn / (float) $totalEntryManifest;
+    }
 }
