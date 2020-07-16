@@ -99,6 +99,9 @@ Route::delete('/awb/{id}', 'EntryManifestController@destroy')
 Route::post('/excel/dataawal', 'ExcelController@importDataAwal')
 ->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
 
+Route::get('/penetapan/{id}/excel', 'ExcelController@exportPenetapanDetail')
+->middleware($corsGroup['singleItem']);
+
 // PENETAPAN
 // ====================================================
 // index all penetapan
