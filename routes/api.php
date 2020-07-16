@@ -100,7 +100,7 @@ Route::post('/excel/dataawal', 'ExcelController@importDataAwal')
 ->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
 
 Route::get('/penetapan/{id}/excel', 'ExcelController@exportPenetapanDetail')
-->middleware($corsGroup['singleItem']);
+->middleware($corsGroup['singleItem'], 'role');
 
 // PENETAPAN
 // ====================================================
