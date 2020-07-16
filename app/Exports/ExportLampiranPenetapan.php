@@ -5,17 +5,16 @@ namespace App\Exports;
 use App\Penetapan;
 use Maatwebsite\Excel\Concerns\Exportable;
 use Maatwebsite\Excel\Concerns\FromCollection;
-use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use Maatwebsite\Excel\Concerns\WithColumnFormatting;
 use Maatwebsite\Excel\Concerns\WithCustomStartCell;
 use Maatwebsite\Excel\Concerns\WithEvents;
-use Maatwebsite\Excel\Concerns\WithHeadings;
+
 use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Events\AfterSheet;
 use Maatwebsite\Excel\Events\BeforeSheet;
 
 class ExportLampiranPenetapan implements FromCollection, WithMapping, 
-WithCustomStartCell, WithEvents, ShouldAutoSize, WithColumnFormatting
+WithCustomStartCell, WithEvents, WithColumnFormatting
 {
     use Exportable;
 
@@ -74,6 +73,7 @@ WithCustomStartCell, WithEvents, ShouldAutoSize, WithColumnFormatting
                     'borders' => [ 'allBorders' => [ 'borderStyle' => 'thin' ] ],
                 ]);
                 // wrap text
+                $e->sheet->getDelegate()->getStyle('A10:M11')->getAlignment()->setWrapText(true);
                 $e->sheet->getDelegate()->getStyle($dataCellRange)->getAlignment()->setWrapText(true);
 
                 // append kolom ttd
@@ -92,6 +92,17 @@ WithCustomStartCell, WithEvents, ShouldAutoSize, WithColumnFormatting
 
                 $rowEnd += 5;
                 $e->sheet->getDelegate()->setCellValue("K{$rowEnd}", $penetapan->pejabat->name);
+
+                // set all column width
+                $e->sheet->getDelegate()->getColumnDimension('E')->setWidth(13.5);
+                $e->sheet->getDelegate()->getColumnDimension('J')->setWidth(25);
+                $e->sheet->getDelegate()->getColumnDimension('K')->setWidth(30);
+                $e->sheet->getDelegate()->getColumnDimension('L')->setWidth(35);
+                
+                // auto size cols
+                $e->sheet->getDelegate()->getColumnDimension('C')->setAutoSize(true);
+                $e->sheet->getDelegate()->getColumnDimension('H')->setAutoSize(true);
+                $e->sheet->getDelegate()->getColumnDimension('I')->setAutoSize(true);
             },
 
             // Sebelum nulis sheet, kita tulis KOP dan heading rows
