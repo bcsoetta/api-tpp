@@ -45,6 +45,21 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $this->belongsToMany(BAST::class, 'bast_detail', 'entry_manifest_id', 'bast_id')->withTimestamps();
     }
 
+    // custom attributes
+    public function getWaktuGateInAttribute() {
+        $t = $this->tracking()->byLokasi(Lokasi::find(2))->first();
+        if ($t) {
+            return $t->created_at;
+        }
+        return null;
+    }
+
+    public function getPosFormattedAttribute() {
+        return str_pad($this->pos, 4, '0', STR_PAD_LEFT) . '.'
+        .   str_pad($this->subpos, 4, '0', STR_PAD_LEFT) . '.'
+        .   str_pad($this->subsubpos, 4, '0', STR_PAD_LEFT);
+    }
+
     // scopes
     public function scopeWild($query, $q) {
         return $query->awb($q)

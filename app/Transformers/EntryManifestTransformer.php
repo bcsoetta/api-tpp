@@ -13,7 +13,8 @@ class EntryManifestTransformer extends TransformerAbstract {
         'status',
         'barang',
         'tracking',
-        'pencacahan'
+        'pencacahan',
+        'last_tracking'
     ];
 
     protected $defaultIncludes = [
@@ -23,7 +24,8 @@ class EntryManifestTransformer extends TransformerAbstract {
         'status',
         'barang',
         'tracking',
-        'pencacahan'
+        'pencacahan',
+        'last_tracking'
     ];
 
     public function transform(EntryManifest $m) {
@@ -35,6 +37,7 @@ class EntryManifestTransformer extends TransformerAbstract {
             'pos' => (int) $m->pos,
             'subpos' => (int) $m->subpos,
             'subsubpos' => (int) $m->subsubpos,
+            'pos_formatted' => $m->pos_formatted,
             'kd_flight' => $m->kd_flight,
             'koli' => (float) $m->koli,
             'brutto' => (float) $m->brutto,
@@ -44,7 +47,10 @@ class EntryManifestTransformer extends TransformerAbstract {
             'nama_importir' => $m->nama_importir,
             'alamat_importir' => $m->alamat_importir,
 
-            'last_tracking' => $m->last_tracking->lokasi ?? null
+            'short_last_status' => $m->short_last_status,
+
+            'is_locked' => $m->is_locked,
+            'waktu_gate_in' => (string) $m->waktu_gate_in
         ];
     }
 
@@ -93,6 +99,13 @@ class EntryManifestTransformer extends TransformerAbstract {
 
         if ($p) {
             return $this->item($p, new PencacahanTransformer);
+        }
+    }
+
+    public function includeLastTracking(EntryManifest $m) {
+        $t = $m->last_tracking;
+        if ($t) {
+            return $this->item($t, new TrackingTransformer);
         }
     }
 }

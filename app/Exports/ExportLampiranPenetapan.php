@@ -94,6 +94,7 @@ WithCustomStartCell, WithEvents, WithColumnFormatting
                 $e->sheet->getDelegate()->setCellValue("K{$rowEnd}", $penetapan->pejabat->name);
 
                 // set all column width
+                $e->sheet->getDelegate()->getColumnDimension('D')->setWidth(14);
                 $e->sheet->getDelegate()->getColumnDimension('E')->setWidth(13.5);
                 $e->sheet->getDelegate()->getColumnDimension('J')->setWidth(25);
                 $e->sheet->getDelegate()->getColumnDimension('K')->setWidth(30);
@@ -254,10 +255,6 @@ WithCustomStartCell, WithEvents, WithColumnFormatting
         foreach ($ms as $value) {
             // append nomor (index)
             $value->no = ++$cnt;
-            // concatenated 
-            $value->pos_formatted = str_pad($value->pos, 4, '0', STR_PAD_LEFT) . '.'
-                                .   str_pad($value->subpos, 4, '0', STR_PAD_LEFT) . '.'
-                                .   str_pad($value->subsubpos, 4, '0', STR_PAD_LEFT);
 
             $data [] = $value;
         }
