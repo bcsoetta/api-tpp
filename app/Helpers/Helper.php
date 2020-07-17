@@ -419,3 +419,57 @@ if (!function_exists('stringifyQuery')) {
     return vsprintf(str_replace(array('?'), array('\'%s\''), $q->toSql()), $bindings);
   }
 }
+
+if (!function_exists('equalizeArrays')) {
+  // declare 2 functions
+  function equalizeArrays(&...$input) {
+    // first, find out the biggest one
+    $largest = array_reduce($input, function ($acc, $e) {
+      return max($acc, count($e));
+    }, 0);
+
+    // now for each array, appends empty space until it has the same size as the largest
+    foreach ($input as &$arr) {
+      while (count($arr) < $largest) {
+        $arr[] = '';
+      }
+    }
+  }
+
+  // this one wrap blanks
+  // assuming all arrays are equalized
+  function wrapBlanks(&...$input) {
+    // i points to current row
+    $i = 0;
+    while ($i < count($input[0])) {
+      // echo "i : {$i}\n";
+      // we assume this rows are equal
+      $equal = true;
+      // check for real
+      foreach ($input as $arr) {
+        if (!strlen(trim($arr[$i]))) {
+          $equal = false;
+          break;
+        }
+      }
+
+      // is it?
+      if ($equal) {
+        // echo "Equal row. skip...\n";
+        // go on
+        ++$i;
+      } else {
+        // echo "Unequal row. wrapping...\n";
+        // wrap em up (if i is nonzero)
+        if ($i) {
+          foreach ($input as &$v) {
+            $v[$i-1] .= "\n" . $v[$i];
+            $v[$i-1] = trim($v[$i-1]);
+            // splice them
+            array_splice($v, $i, 1);
+          }
+        }
+      }
+    }
+  }
+}
