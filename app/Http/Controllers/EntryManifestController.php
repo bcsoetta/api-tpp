@@ -104,6 +104,12 @@ class EntryManifestController extends ApiController
      * }
      * */ 
     public function postFromExcel(Request $r) {
+        // if source is from kep-bdn, call appropriate handler
+        if ($r->get('source') == 'kep-bdn') {
+            return $this->postFromExcelKepBdn($r);
+        }
+
+        // reach here means source is undefined. assume it's from tps
         DB::beginTransaction();
         try {
             // grab TPS Instance
@@ -118,21 +124,33 @@ class EntryManifestController extends ApiController
                 $barangs = $em['barang']['data'];
                 $keterangans = $em['keterangan']['data'];
 
-                // unset it 
-                unset($em['keterangan']);
-                unset($em['barang']);
-                unset($em['status']);
-                unset($em['tracking']);
 
                 // insert entry_manifest
-                $m = new EntryManifest($em);
+                $m = new EntryManifest([
+                    'koli' => $em['koli'],
+                    'brutto' => $em['brutto'],
+                    'mawb' => $em['mawb'],
+                    'hawb' => $em['hawb'],
+                    'nama_importir' => $em['nama_importir'],
+                    'alamat_importir' => $em['alamat_importir'],
+
+                    'no_bc11' => $em['no_bc11'],
+                    'tgl_bc11' => $em['tgl_bc11'],
+                    'pos' => $em['pos'],
+                    'subpos' => $em['subpos'],
+                    'subsubpos' => $em['subsubpos'],
+                    'kd_flight' => $em['kd_flight'],
+                ]);
+
                 $m->tps()->associate($tps);
                 $m->save();
 
                 // insert keterangan
                 foreach ($keterangans as $keterangan) {
-                    $k = new Keterangan($keterangan);
-                    $m->keterangan()->save($k);
+                    if ($keterangan['keterangan']) {
+                        $k = new Keterangan($keterangan);
+                        $m->keterangan()->save($k);
+                    }
                 }
 
                 // insert barang?
@@ -161,10 +179,102 @@ class EntryManifestController extends ApiController
         } catch (PDOException $e) {
             DB::rollBack();
 
-            return $this->errorBadRequest("Duplikat HAWB/MAWB pada baris ke: " . ($total+1));
+            return $this->errorBadRequest($e->getMessage());
         } catch (\Throwable $e) {
             DB::rollBack();
 
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    /**
+     * post data from parsed excel data, with following format:
+     * {
+     *  entry_manifest: [
+     *   EntryManifest + BCP + Keterangan + Detail Barang
+     *  ]
+     * }
+     * */ 
+    public function postFromExcelKepBdn(Request $r) {
+        DB::beginTransaction();
+
+        try {
+            $total = 0; // how many inserted?
+            $lokasi = Lokasi::find(1);  // gudang P2
+
+            // throw new \Exception("Not implemented yet!");
+
+            // loop over all entry manifest
+            $ems = $r->get('entry_manifest', []);
+
+            foreach ($ems as $em) {
+                // grab columns data
+                $barangs = $em['barang']['data'];
+                $keterangans = $em['keterangan']['data'];
+                $bcp = $em['bcp']['data'];
+
+                // spawn EntryManifest
+                $m = new EntryManifest([
+                    'koli' => $em['koli'],
+                    'brutto' => $em['brutto'],
+                    'mawb' => $em['mawb'],
+                    'hawb' => $em['hawb'],
+                    'nama_importir' => $em['nama_importir'],
+                    'alamat_importir' => $em['alamat_importir'],
+                ]);
+                $m->save();
+
+                // add bcp
+                $matches = [];
+                if (!preg_match('/(BTD|BDN)\-\d{4}\/(\d+)$/i', $bcp['nomor_lengkap'], $matches)) {
+                    throw new \Exception("Nomor BCP tidak sesuai format di baris - " . ($total+1));
+                }
+
+                $b = new BCP([
+                    'nomor_lengkap_dok' => $bcp['nomor_lengkap'],
+                    'tgl_dok' => $bcp['tgl_dok'],
+                    'no_dok' => $matches[2],
+                    'jenis' => 'BDN'
+                ]);
+                $m->bcp()->save($b);
+
+                // insert keterangan
+                foreach ($keterangans as $keterangan) {
+                    // save only if it matters
+                    if ($keterangan['keterangan']) {
+                        $k = new Keterangan($keterangan);
+                        $m->keterangan()->save($k);
+                    }
+                }
+
+                // insert barang?
+                foreach ($barangs as $brg) {
+                    $b = new DetailBarang($brg);
+                    $m->detailBarang()->save($b);
+                }
+
+                // update tracking location to tps 
+                $t = new Tracking();
+                $t->petugas()->associate(SSOUserCache::byId($r->userInfo['user_id']));
+                $t->trackable()->associate($m);
+                $t->lokasi()->associate($lokasi);
+                $t->save();
+
+                ++$total;
+            }
+
+            // return info?
+            DB::commit();
+
+            return $this->respondWithArray([
+                'inserted' => $total
+            ]);
+        } catch (PDOException $e) {
+            DB::rollBack();
+
+            return $this->errorBadRequest($e->getMessage());
+        } catch (\Throwable $e) {
+            DB::rollBack();
             return $this->errorBadRequest($e->getMessage());
         }
     }

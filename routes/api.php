@@ -99,6 +99,11 @@ Route::delete('/awb/{id}', 'EntryManifestController@destroy')
 Route::post('/excel/dataawal', 'ExcelController@importDataAwal')
 ->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
 
+// parse excel file for importing from kep bdn p2
+Route::post('/excel/kepbdn', 'ExcelController@importKepBdn')
+->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
+
+// export excel file from Penetapan detail
 Route::get('/penetapan/{id}/excel', 'ExcelController@exportPenetapanDetail')
 ->middleware($corsGroup['singleItem'], 'role');
 
