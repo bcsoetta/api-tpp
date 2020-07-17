@@ -17,12 +17,12 @@ class CreateEntryManifestTable extends Migration
             $table->id();
 
             // nomor bc11
-            $table->unsignedMediumInteger('no_bc11')->index();
-            $table->date('tgl_bc11')->index();
-            $table->unsignedMediumInteger('pos');
-            $table->unsignedMediumInteger('subpos');
-            $table->unsignedMediumInteger('subsubpos');
-            $table->string('kd_flight')->index();
+            $table->unsignedMediumInteger('no_bc11')->nullable()->index();
+            $table->date('tgl_bc11')->nullable()->index();
+            $table->unsignedMediumInteger('pos')->nullable();
+            $table->unsignedMediumInteger('subpos')->nullable();
+            $table->unsignedMediumInteger('subsubpos')->nullable();
+            $table->string('kd_flight')->nullable()->index();
             $table->unsignedMediumInteger('koli');
             $table->decimal('brutto', 8, 4);
 
