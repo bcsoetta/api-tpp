@@ -17,7 +17,8 @@ class BCPTransformer extends TransformerAbstract {
             'id' => (int) $b->id,
             'no_dok' => (int) $b->no_dok,
             'nomor_lengkap' => $b->nomor_lengkap,
-            'tgl_dok' => $b->tgl_dok
+            'tgl_dok' => $b->tgl_dok,
+            'jenis' => $b->jenis
         ];
     }
 
