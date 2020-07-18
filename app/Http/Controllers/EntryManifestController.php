@@ -39,6 +39,9 @@ class EntryManifestController extends ApiController
         $siap_rekam_bast = $r->get('siap_rekam_bast');
         $dari_kep_bdn = $r->get('dari_kep_bdn');
 
+        $siap_pencacahan = $r->get('siap_pencacahan');
+        $has_pencacahan = $r->get('has_pencacahan');
+
         $query = EntryManifest::query()
             ->when($awb, function ($query) use ($awb) {
                 $query->awb($awb);
@@ -78,6 +81,12 @@ class EntryManifestController extends ApiController
             })
             ->when($dari_kep_bdn, function ($query) {
                 $query->dariKepBDN();
+            })
+            ->when($siap_pencacahan, function ($query) {
+                $query->siapPencacahan();
+            })
+            ->when($has_pencacahan, function ($query) {
+                $query->whereHas('pencacahan');
             })
             ->when($status, function ($query) use ($status) {
                 $query->byLastStatus($status);
