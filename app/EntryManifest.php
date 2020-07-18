@@ -137,6 +137,14 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
                     });
     }
 
+    // siap pencacahan := belum ada data cacah, sudah gate in?
+    public function scopeSiapPencacahan($query) {
+        return $query->whereDoesntHave('pencacahan')
+                    ->where(function ($q1) {
+                        $q1->byLastStatus('BAST');
+                    });
+    }
+
     // barang ex bdn
     public function scopeDariKepBDN($query) {
         return $query->whereHas('bcp', function ($q) {
