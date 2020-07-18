@@ -20,6 +20,7 @@ class BASTTransformer extends TransformerAbstract {
             'id' => (int) $b->id,
             'nomor_lengkap' => $b->nomor_lengkap_dok,
             'tgl_dok' => $b->tgl_dok,
+            'ex_p2' => (bool) $b->ex_p2,
             'total_entry_manifest' => (int) $b->entryManifest()->count(),
         ];
     }
