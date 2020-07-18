@@ -21,6 +21,9 @@ class CreateBastTable extends Migration
             // common dok header
             $this->addDokumenColumns($table);
 
+            // ex-p2?
+            $table->boolean('ex_p2')->default(false);
+
             // who did this?
             $table->unsignedInteger('petugas_id');
 

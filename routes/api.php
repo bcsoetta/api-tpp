@@ -135,3 +135,7 @@ Route::get('/bast', 'BASTController@index')
 // store all AWB from particular TPS into bast
 Route::put('/tps/{kode}/bast', 'BASTController@store')
 ->middleware($corsGroup['resourceGroup'], 'role:PELAKSANA,CONSOLE');
+
+// store specific AWB
+Route::post('/bast', 'BASTController@storeSpecific')
+->middleware($corsGroup['resourceGroup'], 'role:PELAKSANA,CONSOLE');

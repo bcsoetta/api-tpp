@@ -21,6 +21,9 @@ class CreatePenetapanTable extends Migration
             // nomor surat?
             $this->addDokumenColumns($table);
 
+            // jenis?
+            $table->enum('jenis',['PENETAPAN_BTD','KEP_BDN'])->default('PENETAPAN_BTD')->index();
+
             // pejabat_id
             $table->unsignedInteger('pejabat_id');
 

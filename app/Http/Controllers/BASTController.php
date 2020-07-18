@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\AppLog;
 use App\BAST;
+use App\EntryManifest;
 use App\SSOUserCache;
 use App\TPS;
 use App\Transformers\BASTTransformer;
@@ -81,7 +82,7 @@ class BASTController extends ApiController
                 'kode_kantor' => '050100',
                 'nomor_lengkap_dok' => strtoupper(trim($r->get('nomor_lengkap_dok'))),
                 'tgl_dok' => expectSomething($r->get('tgl_dok'), 'Tanggal Surat Penetapan'),
-                'petugas_id' => $petugas_id
+                'petugas_id' => $petugas_id,
             ]);
 
             // save it
@@ -95,7 +96,7 @@ class BASTController extends ApiController
 
             // lock it?
             $b->lock()->create([
-                'keterangan' => "Penetapan BTD untuk tps {$kdTps}",
+                'keterangan' => "BAP untuk BTD dari tps {$kdTps}",
                 'petugas_id' => $r->userInfo['user_id']
             ]);
             $b->appendStatus('LOCKED');
@@ -105,6 +106,82 @@ class BASTController extends ApiController
 
             // now we fill the assignment
             $ms = $tps->entryManifest()->siapRekamBAST()->get();
+
+            // for each of them, add to penetapan
+            foreach ($ms as $m) {
+                // add to penetapan
+                $b->entryManifest()->save($m);
+
+                // append status
+                $m->appendStatus('BAST', null, null, $b);
+            }
+
+            // commit
+            DB::commit();
+
+            // return info on how many was assigned
+            return $this->respondWithArray([
+                'id' => (int) $b->id,
+                'total' => count($ms)
+            ]);
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    /**
+     * Store a specific amount of awb
+     */
+    public function storeSpecific(Request $r) {
+        // gotta copy from the other side though
+        // store penetapan
+        DB::beginTransaction();
+        try {
+            // cache petugas_id?
+            $petugas_id = $r->userInfo['user_id'];
+            SSOUserCache::byId($petugas_id);
+
+            // ok, now we make a new Penetapan
+            // $p = new Penetapan([
+            //     'kode_kantor'   => '050100',
+            //     'nomor_lengkap_dok' => strtoupper(trim($r->get('nomor_lengkap_dok'))),
+            //     'tgl_dok' => expectSomething($r->get('tgl_dok'), 'Tanggal Surat Penetapan'),
+            //     'pejabat_id' => $pejabat_id
+            // ]);
+            $nomor_lengkap_dok = strtoupper(trim(expectSomething($r->get('nomor_lengkap_dok'), 'Nomor BAST') ));
+            $tgl_dok = expectSomething($r->get('tgl_dok'), 'Tanggal Surat Penetapan');
+
+            $b = new BAST([
+                'kode_kantor' => '050100',
+                'nomor_lengkap_dok' => $nomor_lengkap_dok,
+                'tgl_dok' => $tgl_dok,
+                'petugas_id' => $petugas_id,
+                'ex_p2' => $r->get('ex_p2',false)
+            ]);
+
+            // save it
+            $b->save();
+            $b->appendStatus('CREATED');
+
+            // if number is empty, assign it
+            if (!$b->nomor_lengkap_dok) {
+                $b->setNomorDokumen();
+            }
+
+            // lock it?
+            $b->lock()->create([
+                'keterangan' => "BAST barang KEP-BDN",
+                'petugas_id' => $r->userInfo['user_id']
+            ]);
+            $b->appendStatus('LOCKED');
+
+            // log it?
+            AppLog::logInfo("BAST #{$b->id} direkam oleh {$r->userInfo['username']}", $b, false);
+
+            // now we fill the assignment
+            $ids = expectSomething($r->get('entry_manifest', []), 'Entry Manifest');
+            $ms = EntryManifest::findOrFail($ids);
 
             // for each of them, add to penetapan
             foreach ($ms as $m) {

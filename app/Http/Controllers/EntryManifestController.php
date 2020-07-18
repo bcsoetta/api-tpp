@@ -8,6 +8,7 @@ use App\DetailBarang;
 use App\EntryManifest;
 use App\Keterangan;
 use App\Lokasi;
+use App\Penetapan;
 use App\SSOUserCache;
 use App\TPS;
 use App\Tracking;
@@ -34,6 +35,9 @@ class EntryManifestController extends ApiController
         $has_bcp = $r->get('has_bcp');
 
         $status = $r->get('status');
+
+        $siap_rekam_bast = $r->get('siap_rekam_bast');
+        $dari_kep_bdn = $r->get('dari_kep_bdn');
 
         $query = EntryManifest::query()
             ->when($awb, function ($query) use ($awb) {
@@ -68,6 +72,12 @@ class EntryManifestController extends ApiController
                 } else {
                     $query->belumBCP();
                 }
+            })
+            ->when($siap_rekam_bast, function ($query) {
+                $query->siapRekamBAST();
+            })
+            ->when($dari_kep_bdn, function ($query) {
+                $query->dariKepBDN();
             })
             ->when($status, function ($query) use ($status) {
                 $query->byLastStatus($status);
@@ -202,7 +212,21 @@ class EntryManifestController extends ApiController
             $total = 0; // how many inserted?
             $lokasi = Lokasi::find(1);  // gudang P2
 
-            // throw new \Exception("Not implemented yet!");
+            // grab header data?
+            $nomor_lengkap_dok = expectSomething($r->get('nomor_lengkap_dok'), 'Nomor Kep Penetapan');
+            $tgl_dok = expectSomething($r->get('tgl_dok'), 'Tanggal Kep Penetapan');
+            $pejabat_id = expectSomething($r->get('pejabat_id'), 'Pejabat Penetapan');
+
+            // store penetapan first
+            $pejabat = SSOUserCache::byId($pejabat_id);
+
+            $p = new Penetapan([
+                'nomor_lengkap_dok' => $nomor_lengkap_dok,
+                'tgl_dok' => $tgl_dok,
+                'jenis' => 'KEP_BDN'
+            ]);
+            $p->pejabat()->associate($pejabat);
+            $p->save();
 
             // loop over all entry manifest
             $ems = $r->get('entry_manifest', []);
@@ -259,6 +283,9 @@ class EntryManifestController extends ApiController
                 $t->trackable()->associate($m);
                 $t->lokasi()->associate($lokasi);
                 $t->save();
+
+                // assign to penetapan
+                $p->entryManifest()->save($m);
 
                 ++$total;
             }
@@ -394,13 +421,16 @@ class EntryManifestController extends ApiController
             $t->trackable()->associate($m);
             $t->save();
 
-            // assign BCP for this entry
-            $b = $m->bcp()->create([
-                'kode_kantor' => '050100',
-                'tgl_dok' => date('Y-m-d'),
-                'jenis' => 'BTD'
-            ]);
-            $b->setNomorDokumen();
+            // assign BCP for this entry (IF IT DOESNT HAVE ONE)
+            $b = $m->bcp;
+            if (!$b) {
+                $b = $m->bcp()->create([
+                    'kode_kantor' => '050100',
+                    'tgl_dok' => date('Y-m-d'),
+                    'jenis' => 'BTD'
+                ]);
+                $b->setNomorDokumen();
+            }
 
             // log it?
             AppLog::logInfo("AWB #{$id} telah di gate-in oleh {$r->userInfo['username']}", $m, false);

@@ -114,16 +114,19 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         /* return $query->whereDoesnthave('bcp')
                     ->unlocked(); */
         return $query->whereDoesntHave('penetapan')
+                    ->whereDoesntHave('bcp')
                     ->unlocked();
     }
 
-    // siap gatein := have penetapan and location is not TPP yet
+    // siap gatein := have penetapan and not having bcp and location is not TPP yet
     public function scopeSiapGateIn($query) {
+        // Logic is
+        // where ( hasPenetapan  ) AND LAST LOKASI <> TPP AND EM is UNLOCKED
         return $query->whereHas('penetapan')
-                    ->where(function ($q) {
-                        $q->byLastTrackingOtherThan(Lokasi::find(2));
-                    })
-                    ->unlocked();
+        ->where(function ($q) {
+            $q->byLastTrackingOtherThan(Lokasi::find(2));
+        })
+        ->unlocked();
     }
 
     // siap rekam bast := lasttracking in tpp, and has no bast yet
@@ -132,5 +135,12 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
                     ->where(function ($q) {
                         $q->byLastTracking(Lokasi::find(2));
                     });
+    }
+
+    // barang ex bdn
+    public function scopeDariKepBDN($query) {
+        return $query->whereHas('bcp', function ($q) {
+            $q->where('jenis', 'BDN');
+        });
     }
 }
