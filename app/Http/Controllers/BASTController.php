@@ -8,6 +8,7 @@ use App\EntryManifest;
 use App\SSOUserCache;
 use App\TPS;
 use App\Transformers\BASTTransformer;
+use App\Transformers\EntryManifestTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -47,6 +48,35 @@ class BASTController extends ApiController
                             ->appends($r->except('page'));
 
         return $this->respondWithPagination($paginator, new BASTTransformer);
+    }
+
+    /**
+     * index all awb of a certain BAST (by id)
+     */
+    public function indexAwb(Request $r, $id) {
+        try {
+            $p = BAST::findOrFail($id);
+
+            $q = $r->get('q');
+            $from = $r->get('from');
+            $to = $r->get('to');
+
+            $query = $p->entryManifest()
+                    ->when($q, function ($query) use ($q) {
+                        $query->wild($q);
+                    })
+                    ->when($from, function ($query) use ($from) {
+                        $query->from($from);
+                    })
+                    ->when($to, function ($query) use ($to) {
+                        $query->to($to);
+                    });
+            $paginator = $query->paginate($r->get('number'))
+                                ->appends($r->except('page'));
+            return $this->respondWithPagination($paginator, new EntryManifestTransformer);
+        } catch (\Throwable $e) {
+            return $this->errorBadRequest($e->getMessage());
+        }
     }
 
     /**

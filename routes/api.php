@@ -132,6 +132,9 @@ Route::put('/awb/{id}/gate-in', 'EntryManifestController@storeGateIn')
 Route::get('/bast', 'BASTController@index')
 ->middleware($corsGroup['resourceGroup'], 'role');
 
+Route::get('/bast/{id}/awb', 'BASTController@indexAwb')
+->middleware($corsGroup['resourceGroup'], 'role');
+
 // store all AWB from particular TPS into bast
 Route::put('/tps/{kode}/bast', 'BASTController@store')
 ->middleware($corsGroup['resourceGroup'], 'role:PELAKSANA,CONSOLE');
