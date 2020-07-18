@@ -13,7 +13,7 @@ class BAST extends AbstractDokumen
     ];
 
     // relations
-    public function pejabat() {
+    public function petugas() {
         return $this->belongsTo(SSOUserCache::class, 'petugas_id', 'user_id');
     }
 
