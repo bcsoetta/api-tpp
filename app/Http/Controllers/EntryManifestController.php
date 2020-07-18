@@ -86,7 +86,9 @@ class EntryManifestController extends ApiController
             ->orderBy('id', 'desc')
         ;
 
-        $paginator = $query->paginate($r->get('number', 10))
+        $number = $r->get('show_all') ? $query->count() : $r->get('number', 10);
+
+        $paginator = $query->paginate($number)
                             ->appends($r->except('page'));
         return $this->respondWithPagination($paginator, new EntryManifestTransformer);
     }
