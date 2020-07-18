@@ -18,8 +18,13 @@ class PencacahanTransformer extends TransformerAbstract {
 
     public function transform(Pencacahan $p) {
         return [
+            'id' => (int) $p->id,
+
             'kondisi_barang' => $p->kondisi_barang,
             'peruntukan_awal' => $p->peruntukan_awal,
+
+            'is_locked' => $p->is_locked,
+
             'created_at' => (string) $p->created_at,
             'updated_at' => (string) $p->updated_at,
         ];

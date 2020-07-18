@@ -146,3 +146,8 @@ Route::put('/tps/{kode}/bast', 'BASTController@store')
 // store specific AWB
 Route::post('/bast', 'BASTController@storeSpecific')
 ->middleware($corsGroup['resourceGroup'], 'role:PELAKSANA,CONSOLE');
+
+// PENCACAHAN
+// ====================================================
+Route::put('/awb/{id}/pencacahan', 'PencacahanController@createOrUpdate')
+->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
