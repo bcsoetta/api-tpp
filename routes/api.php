@@ -107,6 +107,10 @@ Route::post('/excel/kepbdn', 'ExcelController@importKepBdn')
 Route::get('/penetapan/{id}/excel', 'ExcelController@exportPenetapanDetail')
 ->middleware($corsGroup['singleItem'], 'role');
 
+// export excel file from BAST (btd onlehh)
+Route::get('/bast/{id}/excel', 'ExcelController@exportBASTDetail')
+->middleware($corsGroup['singleItem']);
+
 // PENETAPAN
 // ====================================================
 // index all penetapan
