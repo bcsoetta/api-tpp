@@ -98,7 +98,7 @@ class PenetapanController extends ApiController
             // cache pejabat_id
             $pejabat_id = expectSomething($r->get('pejabat_id'), "Pejabat Penetapan");
 
-            SSOUserCache::byId($pejabat_id);
+            $pejabat = SSOUserCache::byId($pejabat_id);
 
             // ok, now we make a new Penetapan
             $p = new Penetapan([
@@ -136,7 +136,12 @@ class PenetapanController extends ApiController
                 $p->entryManifest()->save($m);
 
                 // append status
-                $m->appendStatus('PENETAPAN', null, null, $p);
+                $m->appendStatus(
+                    'PENETAPAN', 
+                    null, 
+                    "Penetapan Sebagai BTD berdasarkan {$p->nomor_lengkap} tanggal {$p->tgl_dok} oleh {$pejabat->name}", 
+                    $p
+                );
             }
 
             // commit

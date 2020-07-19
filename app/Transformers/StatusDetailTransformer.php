@@ -13,6 +13,8 @@ class StatusDetailTransformer extends TransformerAbstract {
     public function transform(StatusDetail $s) {
         $ret = [
             'id'    => (int) $s->id,
+            'linkable_type' => $s->linkable_type,
+            'linkable_id'   => $s->linkable_id,
             'keterangan'    => $s->keterangan,
             'other_data'    => $s->other_data,
             'created_at'    => (string) $s->created_at,

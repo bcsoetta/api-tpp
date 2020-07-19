@@ -259,6 +259,15 @@ class EntryManifestController extends ApiController
                 ]);
                 $m->save();
 
+                // add status
+                // append status
+                $m->appendStatus(
+                    'PENETAPAN', 
+                    null, 
+                    "Penetapan Sebagai BDN berdasarkan {$p->nomor_lengkap} tanggal {$p->tgl_dok} oleh {$pejabat->name}", 
+                    $p
+                );
+
                 // add bcp
                 $matches = [];
                 if (!preg_match('/(BTD|BDN)\-\d{4}\/(\d+)$/i', $bcp['nomor_lengkap'], $matches)) {
@@ -422,8 +431,6 @@ class EntryManifestController extends ApiController
             }
 
             // safe to continue
-            // first, update status
-            $m->appendStatus('GATE-IN');
 
             // next, update tracking info
             $t = new Tracking();
@@ -431,6 +438,14 @@ class EntryManifestController extends ApiController
             $t->petugas()->associate(SSOUserCache::byId($r->userInfo['user_id']));
             $t->trackable()->associate($m);
             $t->save();
+
+            // first, update status
+            $m->appendStatus(
+                'GATE-IN',
+                null,
+                "Barang Telah di gate-in oleh {$r->userInfo['username']}",
+                $t
+            );
 
             // assign BCP for this entry (IF IT DOESNT HAVE ONE)
             $b = $m->bcp;

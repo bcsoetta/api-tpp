@@ -143,7 +143,12 @@ class BASTController extends ApiController
                 $b->entryManifest()->save($m);
 
                 // append status
-                $m->appendStatus('BAST', null, null, $b);
+                $m->appendStatus(
+                    'BAST', 
+                    null, 
+                    "Berita Acara Serah Terima nomor {$b->nomor_lengkap} tanggal {$b->tgl_dok} telah direkam oleh {$r->userInfo['username']}", 
+                    $b
+                );
             }
 
             // commit
@@ -219,7 +224,12 @@ class BASTController extends ApiController
                 $b->entryManifest()->save($m);
 
                 // append status
-                $m->appendStatus('BAST', null, null, $b);
+                $m->appendStatus(
+                    'BAST', 
+                    null, 
+                    "Berita Acara Serah Terima nomor {$b->nomor_lengkap} tanggal {$b->tgl_dok} telah direkam oleh {$r->userInfo['username']}", 
+                    $b
+                );
             }
 
             // commit

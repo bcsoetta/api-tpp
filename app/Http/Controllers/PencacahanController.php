@@ -97,7 +97,12 @@ class PencacahanController extends ApiController
             }
 
             // log activity
-            $m->appendStatus('PENCACAHAN', null, 'Update Pencacahan', $p);
+            $m->appendStatus(
+                'PENCACAHAN', 
+                null, 
+                "Data Pencacahan diupdate oleh {$r->userInfo['username']}", 
+                $p
+            );
             AppLog::logInfo("EntryManifest #{$m->id} diupdate pencacahannya oleh {$r->userInfo['username']}", $m, false);
 
             DB::commit();
