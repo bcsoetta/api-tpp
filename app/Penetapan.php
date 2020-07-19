@@ -34,7 +34,13 @@ class Penetapan extends AbstractDokumen
 
     public function getSkemaPenomoranAttribute()
     {
-        return 'KPU.03/BD.0301';
+        // just follow pejabat's penempatan
+        $penempatan = strtoupper($this->pejabat->penempatan);
+
+        if (strcmp($penempatan, 'KPU.03'))
+            $penempatan = 'KPU.03/' . $penempatan;
+        
+        return $penempatan.'-PENETAPAN';
     }
 
     public function getNomorLengkapAttribute()
@@ -50,7 +56,7 @@ class Penetapan extends AbstractDokumen
         $nomorLengkap = 'S-' 
             . str_pad( $this->no_dok, 6, '0', STR_PAD_LEFT ) 
             . '/' 
-            . $this->skema_penomoran
+            . str_replace("-PENETAPAN", "", $this->skema_penomoran)
             . '/'
             . $this->tahun_dok;
         return $nomorLengkap;
