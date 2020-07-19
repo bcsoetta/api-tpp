@@ -103,7 +103,7 @@ class PenetapanController extends ApiController
             // ok, now we make a new Penetapan
             $p = new Penetapan([
                 'kode_kantor'   => '050100',
-                'nomor_lengkap_dok' => strtoupper(trim($r->get('nomor_lengkap_dok'))),
+                'nomor_lengkap_dok' => strtoupper( trim( expectSomething( $r->get('nomor_lengkap_dok'), 'Nomor Surat Penetapan (Cek Nadine)') ) ),
                 'tgl_dok' => expectSomething($r->get('tgl_dok'), 'Tanggal Surat Penetapan'),
                 'pejabat_id' => $pejabat_id
             ]);
