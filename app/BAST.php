@@ -34,7 +34,7 @@ class BAST extends AbstractDokumen
 
     public function getSkemaPenomoranAttribute()
     {
-        return 'BAST/TPP/KPU.03';
+        return 'BA/TPP/KPU.03';
     }
 
     public function getNomorLengkapAttribute()
@@ -47,9 +47,9 @@ class BAST extends AbstractDokumen
             return null;
         }
 
-        $nomorLengkap = 'BAST-'
+        $nomorLengkap = 'BA-'
             . str_pad($this->no_dok, 6, '0', STR_PAD_LEFT)
-            . '/KPU.03/BD.0301'
+            . '/TPP/KPU.03'
             . '/'
             . $this->tahun_dok;
         return $nomorLengkap;
