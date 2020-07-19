@@ -157,7 +157,8 @@ class BASTController extends ApiController
             // return info on how many was assigned
             return $this->respondWithArray([
                 'id' => (int) $b->id,
-                'total' => count($ms)
+                'total' => count($ms),
+                'nomor' => $b->nomor_lengkap_dok
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
@@ -238,7 +239,8 @@ class BASTController extends ApiController
             // return info on how many was assigned
             return $this->respondWithArray([
                 'id' => (int) $b->id,
-                'total' => count($ms)
+                'total' => count($ms),
+                'nomor' => $b->nomor_lengkap_dok
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
