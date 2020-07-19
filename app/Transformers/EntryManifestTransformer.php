@@ -14,7 +14,8 @@ class EntryManifestTransformer extends TransformerAbstract {
         'barang',
         'tracking',
         'pencacahan',
-        'last_tracking'
+        'last_tracking',
+        'lampiran'
     ];
 
     protected $defaultIncludes = [
@@ -25,7 +26,8 @@ class EntryManifestTransformer extends TransformerAbstract {
         'barang',
         'tracking',
         'pencacahan',
-        'last_tracking'
+        'last_tracking',
+        'lampiran'
     ];
 
     public function transform(EntryManifest $m) {
@@ -107,5 +109,10 @@ class EntryManifestTransformer extends TransformerAbstract {
         if ($t) {
             return $this->item($t, new TrackingTransformer);
         }
+    }
+
+    public function includeLampiran(EntryManifest $m) {
+        $l = $m->lampiran;
+        return $this->collection($l, new LampiranTransformer);
     }
 }

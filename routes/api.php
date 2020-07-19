@@ -149,5 +149,20 @@ Route::post('/bast', 'BASTController@storeSpecific')
 
 // PENCACAHAN
 // ====================================================
+// tambah data pencacahan (new or update)
 Route::put('/awb/{id}/pencacahan', 'PencacahanController@createOrUpdate')
 ->middleware($corsGroup['singleItem'], 'role:PELAKSANA,CONSOLE');
+
+// LAMPIRAN
+// ====================================================
+// upload lampiran
+Route::post('/{doctype}/{id}/lampiran', 'UploadController@handleUpload')
+->middleware($corsGroup['resourceGroup'], 'role');
+
+// get all attachments
+Route::get('/{doctype}/{id}/lampiran', 'UploadController@getAttachments')
+->middleware($corsGroup['resourceGroup'], 'role');
+
+// delete specific attachment
+Route::delete('/lampiran/{id}', 'UploadController@deleteAttachment')
+->middleware($corsGroup['singleItem'], 'role');

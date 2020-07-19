@@ -13,6 +13,7 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
     use TraitTrackable;
     use TraitLockable;
     use TraitLoggable;
+    use TraitAttachable;
     
     use SoftDeletes;
     // settings
