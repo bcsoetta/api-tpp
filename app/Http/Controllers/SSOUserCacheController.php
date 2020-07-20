@@ -30,9 +30,24 @@ class SSOUserCacheController extends ApiController
             // split them into arrays
             $arr_roles = explode(",", $roles);
     
-            $users = $this->sso->getUserByRole($arr_roles, true);
+            $data = $this->sso->getUserByRole($arr_roles, true);
+
+            // filter it?
+            $q = $r->get('q');
+
+            if ($q && strlen(trim($q)) > 0) {
+                // refine by name?
+                $data['data'] = array_values(array_filter($data['data'], function ($e) use ($q) {
+                    $pattern = "/$q/i";
+
+                    return preg_match($pattern, $e['name']) || preg_match($pattern, $e['nip']);
+                }));
+
+                // remove key?
+                
+            }
     
-            return $this->respondWithArray($users);
+            return $this->respondWithArray($data);
         } catch (\Exception $e) {
             return $this->errorBadRequest($e->getMessage());
         }

@@ -154,8 +154,8 @@ class BACacahController extends ApiController
             foreach ($entry_manifest_id as $mid) {
                 $m = EntryManifest::findOrFail($mid);
                 // fail if it's got a ba cacah already
-                if ($m->baCacah) {
-                    throw new \Exception("AWB {$m->hawb} udah pernah direkam ba cacahnya di BA Nomor {$m->baCacah->nomor_lengkap_dok} tanggal {$m->baCacah->tgl_dok}!");
+                if (count($m->baCacah)) {
+                    throw new \Exception("AWB {$m->hawb} udah pernah direkam ba cacahnya di BA Nomor {$m->baCacah[0]->nomor_lengkap_dok} tanggal {$m->baCacah[0]->tgl_dok}!");
                 }
 
                 // good we're save to continue
@@ -170,7 +170,7 @@ class BACacahController extends ApiController
                 );
 
                 // kunci pencacahan
-                $m->pencacahan()->lock()->create([
+                $m->pencacahan->lock()->create([
                     'keterangan' => "Dikunci dengan BA Cacah #{$b->id}, nomor {$b->nomor_lengkap_dok} tanggal {$b->tgl_dok}",
                     'petugas_id' => $r->userInfo['user_id']
                 ]);
@@ -186,8 +186,9 @@ class BACacahController extends ApiController
             return $this->respondWithArray([
                 'id' => (int) $b->id,
                 'uri' => $b->uri,
-                'nomor_lengkap_dok' => $b->nomor_lengkap_dok,
-                'tgl_dok' => $b->tgl_dok
+                'nomor_lengkap' => $b->nomor_lengkap_dok,
+                'tgl_dok' => $b->tgl_dok,
+                'total' => count($entry_manifest_id)
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
