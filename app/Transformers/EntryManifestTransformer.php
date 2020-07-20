@@ -51,6 +51,8 @@ class EntryManifestTransformer extends TransformerAbstract {
 
             'short_last_status' => $m->short_last_status,
 
+            'ringkasan_uraian_barang' => $m->ringkasan_uraian_barang,
+
             'is_locked' => $m->is_locked,
             'waktu_gate_in' => (string) $m->waktu_gate_in
         ];

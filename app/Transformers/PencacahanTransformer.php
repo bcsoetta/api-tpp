@@ -23,6 +23,8 @@ class PencacahanTransformer extends TransformerAbstract {
             'kondisi_barang' => $p->kondisi_barang,
             'peruntukan_awal' => $p->peruntukan_awal,
 
+            'ringkasan_uraian_barang' => $p->ringkasan_uraian_barang,
+
             'is_locked' => $p->is_locked,
 
             'created_at' => (string) $p->created_at,
