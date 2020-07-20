@@ -50,6 +50,10 @@ class BACacah extends AbstractDokumen
         return 'BA/TPP/KPU.03';
     }
 
+    public function getBdnModeAttribute() {
+        return $this->entryManifest[0]->bcp->jenis == 'BDN';
+    }
+
     // scopes
     public function scopeWild($query, $q) {
         return $query->where('nomor_lengkap_dok', 'like', "%$q%")

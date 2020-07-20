@@ -109,6 +109,10 @@ Route::get('/penetapan/{id}/excel', 'ExcelController@exportPenetapanDetail')
 
 // export excel file from BAST (btd onlehh)
 Route::get('/bast/{id}/excel', 'ExcelController@exportBASTDetail')
+->middleware($corsGroup['singleItem'], 'role');
+
+// export excel file from BACacah
+Route::get('/ba_cacah/{id}/excel', 'ExcelController@exportBACacahDetail')
 ->middleware($corsGroup['singleItem']);
 
 // PENETAPAN

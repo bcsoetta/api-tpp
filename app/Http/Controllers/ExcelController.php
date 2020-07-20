@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\ExportLampiranBACacah;
 use App\Exports\ExportLampiranBAST;
 use App\Exports\ExportLampiranPenetapan;
 use App\Imports\DataAwalImport;
@@ -68,6 +69,20 @@ class ExcelController extends ApiController
             $e = (new ExportLampiranBAST)->byId($id);
 
             $filename = preg_replace('/\//i', '-', $e->bast->nomor_lengkap_dok);
+
+            return Excel::download($e, $filename . '.xlsx');
+        } catch (\Throwable $e) {
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    // export lampiran BA Cacah
+    public function exportBACacahDetail(Request $r, $id) {
+        // throw error for ex P2 stuffs
+        try {
+            $e = (new ExportLampiranBACacah)->byId($id);
+
+            $filename = preg_replace('/\//i', '-', $e->baCacah->nomor_lengkap_dok);
 
             return Excel::download($e, $filename . '.xlsx');
         } catch (\Throwable $e) {
