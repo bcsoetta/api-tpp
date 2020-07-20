@@ -43,7 +43,15 @@ class PencacahanController extends ApiController
                 // save it and return 204
                 $p->save();
 
+                // log activity
+                $m->appendStatus(
+                    'MULAI PENCACAHAN', 
+                    null, 
+                    "Pencacahan dimulai oleh {$r->userInfo['username']}", 
+                    $p
+                );
 
+                AppLog::logInfo("EntryManifest #{$m->id} dimulai pencacahannya oleh {$r->userInfo['username']}", $m, false);
             } else {
                 // update it
                 // if it's locked, throw error
@@ -93,17 +101,22 @@ class PencacahanController extends ApiController
                     $p->detailBarang()->create($item);
                 }
 
-                // throw new \Exception("To Sync: " . count($toSync). ", To Insert: " . count($toInsert));
-            }
+                // check if it's empty
+                if (!$p->detailBarang()->count()) {
+                    throw new \Exception("Detail barang pada pencacahan tidak boleh kosong!");
+                }
 
-            // log activity
-            $m->appendStatus(
-                'PENCACAHAN', 
-                null, 
-                "Data Pencacahan diupdate oleh {$r->userInfo['username']}", 
-                $p
-            );
-            AppLog::logInfo("EntryManifest #{$m->id} diupdate pencacahannya oleh {$r->userInfo['username']}", $m, false);
+                // throw new \Exception("To Sync: " . count($toSync). ", To Insert: " . count($toInsert));
+                // log activity
+                $m->appendStatus(
+                    'PENCACAHAN', 
+                    null, 
+                    "Data Pencacahan diupdate oleh {$r->userInfo['username']}", 
+                    $p
+                );
+
+                AppLog::logInfo("EntryManifest #{$m->id} diupdate pencacahannya oleh {$r->userInfo['username']}", $m, false);
+            }            
 
             DB::commit();
 

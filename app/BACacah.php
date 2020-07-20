@@ -49,4 +49,17 @@ class BACacah extends AbstractDokumen
     {
         return 'BA/TPP/KPU.03';
     }
+
+    // scopes
+    public function scopeWild($query, $q) {
+        return $query->where('nomor_lengkap_dok', 'like', "%$q%")
+                    ->orWhere('nomor_st', 'like', "%$q%");
+    }
+
+    public function scopeByPejabat($query, $q) {
+        return $query->whereHas('pejabat', function ($q1) use ($q) {
+            $q1->where('name', 'like', "%$q%")
+                ->orWhere('nip', 'like', "%$q%");
+        });
+    }
 }

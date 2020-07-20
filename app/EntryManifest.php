@@ -46,6 +46,10 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $this->belongsToMany(BAST::class, 'bast_detail', 'entry_manifest_id', 'bast_id')->withTimestamps();
     }
 
+    public function baCacah() {
+        return $this->belongsToMany(BACacah::class, 'ba_cacah_detail', 'entry_manifest_id', 'ba_cacah_id')->withTimestamps();
+    }
+
     // custom attributes
     public function getWaktuGateInAttribute() {
         $t = $this->tracking()->byLokasi(Lokasi::find(2))->first();
@@ -135,7 +139,8 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $query->whereDoesntHave('bast')
                     ->where(function ($q) {
                         $q->byLastTracking(Lokasi::find(2));
-                    });
+                    })
+                    ->unlocked();
     }
 
     // siap pencacahan := belum ada data cacah, sudah gate in?
@@ -143,7 +148,20 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $query->whereDoesntHave('pencacahan')
                     ->where(function ($q1) {
                         $q1->byLastStatus('BAST');
-                    });
+                    })
+                    ->unlocked();
+    }
+
+    // siap rekam ba cacah := sudah ada pencacahan tapi belum ada baCacah
+    public function scopeSiapRekamBACacah($query) {
+        // has pencacahan
+        return $query->whereHas('pencacahan', function ($q1) {
+                    // only if it has detail barang at least 1
+                    $q1->whereHas('detailBarang');
+                })
+                // but doesn't have baCacah
+                ->whereDoesntHave('baCacah')
+                ->unlocked();
     }
 
     // barang ex bdn

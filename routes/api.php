@@ -166,3 +166,17 @@ Route::get('/{doctype}/{id}/lampiran', 'UploadController@getAttachments')
 // delete specific attachment
 Route::delete('/lampiran/{id}', 'UploadController@deleteAttachment')
 ->middleware($corsGroup['singleItem'], 'role');
+
+// BA CACAH
+// ====================================================
+// index all BACacah
+Route::get('/ba_cacah', 'BACacahController@index')
+->middleware($corsGroup['resourceGroup'], 'role');
+
+// show specific BACacah
+Route::get('/ba_cacah/{id}', 'BACacahController@show')
+->middleware($corsGroup['singleItem'], 'role');
+
+// store
+Route::post('/ba_cacah', 'BACacahController@store')
+->middleware($corsGroup['resourceGroup'], 'role');
