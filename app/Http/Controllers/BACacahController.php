@@ -88,7 +88,7 @@ class BACacahController extends ApiController
                 'nomor_st' => $nomor_st,
                 'tgl_st' => $tgl_st,
 
-                'pejabat_id' => $pejabat_id
+                'pejabat_id' => $pejabat->user_id
             ]);
 
             // save and log?
