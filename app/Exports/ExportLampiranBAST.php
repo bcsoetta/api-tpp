@@ -81,7 +81,7 @@ WithEvents, WithColumnFormatting
             $row->brutto,
             (string) $row->mawb,
             (string) $row->hawb,
-            $row->detailBarang[0]->uraian,
+            $row->ringkasan_uraian_barang,
             $row->nama_importir,
             $row->alamat_importir,
             $row->waktu_gate_in->toDateString(),
