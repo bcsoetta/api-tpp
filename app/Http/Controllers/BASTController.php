@@ -110,7 +110,7 @@ class BASTController extends ApiController
             // ]);
             $b = new BAST([
                 'kode_kantor' => '050100',
-                'nomor_lengkap_dok' => strtoupper(trim($r->get('nomor_lengkap_dok'))),
+                'nomor_lengkap_dok' => strtoupper( trim( expectSomething( $r->get('nomor_lengkap_dok'), "Nomor Berita Acara") ) ),
                 'tgl_dok' => expectSomething($r->get('tgl_dok'), 'Tanggal Surat Penetapan'),
                 'petugas_id' => $petugas_id,
             ]);
