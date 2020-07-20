@@ -173,6 +173,10 @@ Route::delete('/lampiran/{id}', 'UploadController@deleteAttachment')
 Route::get('/ba_cacah', 'BACacahController@index')
 ->middleware($corsGroup['resourceGroup'], 'role');
 
+// index all of AWB of a BACacah
+Route::get('/ba_cacah/{id}/awb', 'BACacahController@indexAwb')
+->middleware($corsGroup['resourceGroup'], 'role');
+
 // show specific BACacah
 Route::get('/ba_cacah/{id}', 'BACacahController@show')
 ->middleware($corsGroup['singleItem'], 'role');
