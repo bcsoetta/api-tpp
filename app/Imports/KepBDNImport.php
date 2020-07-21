@@ -54,10 +54,32 @@ class KepBDNImport implements ToModel, WithStartRow
             'brutto' => (float) $r[5]
         ]);
 
+        // read detail barang
+        $detail_barang = explode("\n", $r[11]);
+        $jml_barang = explode("\n", $r[12]);
+        $jns_barang = explode("\n", $r[13]);
+
+        // equalize them
+        equalizeArrays($detail_barang, $jml_barang, $jns_barang);
+
+        // wrap blanks
+        wrapBlanks($detail_barang, $jml_barang, $jns_barang);
+
         // SPAWN detail barang
-        $detailBarang = [
-            DetailBarang::fromString(trim($r[8]))
-        ];
+        $detailBarang = [];
+
+        $i=0;
+        while ($i < count($detail_barang)) {
+            $d = new DetailBarang([
+                'jumlah' => $jml_barang[$i],
+                'jenis' => $jns_barang[$i],
+                'uraian' => $detail_barang[$i]
+            ]);
+
+            $detailBarang[] = $d;
+
+            ++$i;
+        }
 
         // SPAWN KETERANGAN
         $keterangan = [
