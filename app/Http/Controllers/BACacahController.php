@@ -151,12 +151,25 @@ class BACacahController extends ApiController
             }
 
             // Detail EntryManifest
+            $rowPos = 1;    // current row id
+            $lastType = null;   // last bcp type
+
             foreach ($entry_manifest_id as $mid) {
                 $m = EntryManifest::findOrFail($mid);
                 // fail if it's got a ba cacah already
                 if (count($m->baCacah)) {
                     throw new \Exception("AWB {$m->hawb} udah pernah direkam ba cacahnya di BA Nomor {$m->baCacah[0]->nomor_lengkap_dok} tanggal {$m->baCacah[0]->tgl_dok}!");
                 }
+
+                // if we recorded last type, and our type is dissimilar
+                if ($lastType && $m->bcp->jenis != $lastType) {
+                    // different shit!! tell em
+                    throw new \Exception("Jenis BCP berbeda di baris {$rowPos}, sebelumnya: {$lastType}, beda dengan {$m->bcp->jenis}");
+                }
+
+                // go on,
+                ++$rowPos;
+                $lastType = $m->bcp->jenis;
 
                 // good we're save to continue
                 $b->entryManifest()->save($m);
