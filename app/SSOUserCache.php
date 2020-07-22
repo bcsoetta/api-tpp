@@ -23,8 +23,6 @@ class SSOUserCache extends Model
     // static method? to automatically grab and cache
     // cache user data
     static public function cacheUserData($data) {
-        $data['penempatan'] = $data['posisi'];
-        
         $user = SSOUserCache::updateOrCreate($data);
 
         return $user;
