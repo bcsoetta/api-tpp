@@ -60,7 +60,7 @@ class SSOUserCacheController extends ApiController
 
         try {
             //code...
-            $user = SSOUserCache::byId($id);
+            $user = SSOUserCache::byId($id, $r->get('force'));
 
             return $this->respondWithArray($user->toArray());
         } catch (\Exception $e) {

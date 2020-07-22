@@ -67,7 +67,7 @@ class CheckRole
         $request->userInfo = $userInfo;
 
         // also update sso user cache before we go on
-        $sso_user_cache = SSOUserCache::updateOrCreate([
+        $sso_user_cache = SSOUserCache::cacheUserData($userInfo/* [
             'user_id' => $userInfo['user_id'],
             'username' => $userInfo['username'],
             'name' => $userInfo['name'],
@@ -75,7 +75,7 @@ class CheckRole
             'pangkat' => $userInfo['pangkat'] ?? '',
             'penempatan' => $userInfo['kode'] ?? '',
             'status' => $userInfo['status']
-        ]);
+        ] */);
 
         // pass role check. continue
         return $next($request);
