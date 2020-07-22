@@ -37,7 +37,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         // set it cause mysql would explode otherwise
-        Schema::defaultStringLength(191);
+        // Schema::defaultStringLength(191);
 
         // obeservers
         Lampiran::observe(LampiranObserver::class);
