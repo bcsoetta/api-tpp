@@ -28,7 +28,9 @@ class TPSController extends ApiController
                 ->orWhere('nama', 'like', "%$q%");
         });
 
-        $paginator = $query->paginate($r->get('number', 10))
+        $show_all = $r->get('show_all');
+
+        $paginator = $query->paginate($show_all ? $query->count() : $r->get('number', 10))
                         ->appends($r->except('page'));
         
         return $this->respondWithPagination($paginator, new TPSTransformer);
