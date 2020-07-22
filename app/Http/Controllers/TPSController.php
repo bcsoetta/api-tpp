@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\EntryManifest;
 use App\TPS;
 use App\Transformers\EntryManifestTransformer;
 use App\Transformers\TPSTransformer;
@@ -114,14 +115,23 @@ class TPSController extends ApiController
     public function indexAwbSiapPenetapan(Request $r, $kode) {
         try {
             // what is it?
-            $t = TPS::byKode($kode)->first();
-
-            if (!$t) {
-                throw new ModelNotFoundException("TPS $kode was not found!");
+            $kode = explode(',', $kode);
+            // $t = TPS::byKode($kode)->first();
+            if (TPS::byKode($kode)->count() != count($kode)){
+                throw new \Exception("Salah satu kode TPS tidak valid!");
             }
 
+            /* if (!$t) {
+                throw new ModelNotFoundException("TPS $kode was not found!");
+            } */
+
             // index all that is not yet defined
-            $query = $t->entryManifest()->siapPenetapan();
+            
+
+            // $query = $t->entryManifest()->siapPenetapan();
+            $query = EntryManifest::siapPenetapan()->whereHas('tps', function ($q) use ($kode) {
+                $q->byKode($kode);
+            });
 
             $paginator = $query->paginate($r->get('number', 10))
                                 ->appends($r->except('page'));
