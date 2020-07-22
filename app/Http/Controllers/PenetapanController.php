@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\AppLog;
+use App\EntryManifest;
 use App\Penetapan;
 use App\SSOUserCache;
 use App\TPS;
@@ -89,10 +90,10 @@ class PenetapanController extends ApiController
         // store penetapan
         DB::beginTransaction();
         try {
-            $tps = TPS::byKode($kdTps)->first();
-
-            if (!$tps) {
-                throw new \Exception("TPS {$kdTps} tidak ditemukan");
+            $kdTps = explode(',', $kdTps);
+            
+            if (TPS::byKode($kdTps)->count() != count($kdTps)) {
+                throw new \Exception("Salah satu kode TPS tidak valid!");
             }
 
             // cache pejabat_id
@@ -128,7 +129,9 @@ class PenetapanController extends ApiController
             AppLog::logInfo("Penetapan #{$p->id} direkam oleh {$r->userInfo['username']}", $p, false);
 
             // now we fill the assignment
-            $ms = $tps->entryManifest()->siapPenetapan()->get();
+            $ms = EntryManifest::siapPenetapan()->whereHas('tps', function ($q) use ($kdTps) {
+                $q->byKode($kdTps);
+            })->get();
 
             // for each of them, add to penetapan
             foreach ($ms as $m) {
