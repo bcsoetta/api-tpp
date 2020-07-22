@@ -208,7 +208,7 @@ class EntryManifestController extends ApiController
         } catch (PDOException $e) {
             DB::rollBack();
 
-            return $this->errorBadRequest($e->getMessage());
+            return $this->errorBadRequest("Data duplikat pada baris: " . ($total + 1) . "\nDetail: " . $e->getMessage());
         } catch (\Throwable $e) {
             DB::rollBack();
 
@@ -327,7 +327,8 @@ class EntryManifestController extends ApiController
         } catch (PDOException $e) {
             DB::rollBack();
 
-            return $this->errorBadRequest($e->getMessage());
+            // return $this->errorBadRequest($e->getMessage());
+            return $this->errorBadRequest("Data duplikat pada baris: " . ($total + 1) . "\nDetail: " . $e->getMessage());
         } catch (\Throwable $e) {
             DB::rollBack();
             return $this->errorBadRequest($e->getMessage());
