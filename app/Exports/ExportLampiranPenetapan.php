@@ -31,7 +31,7 @@ WithCustomStartCell, WithEvents, WithColumnFormatting
         $tglSurat = formatTanggal($this->penetapan->tgl_dok);
         $namaTps = 'TPS: ' . $this->penetapan->entryManifest[0]->tps->nama;
 
-        $dataCellRange = 'A12:M' . (12+$this->penetapan->entryManifest()->count());
+        $dataCellRange = 'A12:N' . (12+$this->penetapan->entryManifest()->count());
 
         $penetapan = $this->penetapan;
 
@@ -48,8 +48,8 @@ WithCustomStartCell, WithEvents, WithColumnFormatting
                 ]);
 
                 // merge and set color for empty last row
-                $e->sheet->getDelegate()->mergeCells("H{$rowEnd}:M{$rowEnd}");
-                $e->sheet->getDelegate()->getStyle("H{$rowEnd}:M{$rowEnd}")->applyFromArray([
+                $e->sheet->getDelegate()->mergeCells("H{$rowEnd}:N{$rowEnd}");
+                $e->sheet->getDelegate()->getStyle("H{$rowEnd}:N{$rowEnd}")->applyFromArray([
                     'fill' => [
                         'fillType' => 'solid',
                         'color' => [ 'rgb' => 'DDDDDD' ]
@@ -73,7 +73,7 @@ WithCustomStartCell, WithEvents, WithColumnFormatting
                     'borders' => [ 'allBorders' => [ 'borderStyle' => 'thin' ] ],
                 ]);
                 // wrap text
-                $e->sheet->getDelegate()->getStyle('A10:M11')->getAlignment()->setWrapText(true);
+                $e->sheet->getDelegate()->getStyle('A10:N11')->getAlignment()->setWrapText(true);
                 $e->sheet->getDelegate()->getStyle($dataCellRange)->getAlignment()->setWrapText(true);
 
                 // append kolom ttd
@@ -99,6 +99,7 @@ WithCustomStartCell, WithEvents, WithColumnFormatting
                 $e->sheet->getDelegate()->getColumnDimension('J')->setWidth(25);
                 $e->sheet->getDelegate()->getColumnDimension('K')->setWidth(30);
                 $e->sheet->getDelegate()->getColumnDimension('L')->setWidth(35);
+                $e->sheet->getDelegate()->getColumnDimension('M')->setWidth(10);
                 
                 // auto size cols
                 $e->sheet->getDelegate()->getColumnDimension('C')->setAutoSize(true);
@@ -124,19 +125,20 @@ WithCustomStartCell, WithEvents, WithColumnFormatting
                 $e->sheet->append(['KANTOR PELAYANAN UTAMA BEA DAN CUKAI TIPE C SOEKARNO HATTA'],'A3');
 
                 // lampiran
-                $e->sheet->getDelegate()->mergeCells('K1:M1');
-                $e->sheet->getDelegate()->mergeCells('K2:M2');
-                $e->sheet->getDelegate()->mergeCells('K3:M3');
+                $e->sheet->getDelegate()->mergeCells('L1:N1');
+                $e->sheet->getDelegate()->mergeCells('L2:N2');
+                $e->sheet->getDelegate()->mergeCells('L3:N3');
+                $e->sheet->getDelegate()->mergeCells('L4:N4');
 
-                $e->sheet->append(['Lampiran'], 'K1');
-                $e->sheet->append(['Surat Kepala Bidang PFPC I KPU BC Tipe C Soekarno Hatta'], 'K2');
-                $e->sheet->append(["Nomor: {$noSurat}"], 'K3');
-                $e->sheet->append(["Tanggal: {$tglSurat}"], 'K4');
+                $e->sheet->append(['Lampiran'], 'L1');
+                $e->sheet->append(['Surat Kepala Bidang PFPC I KPU BC Tipe C Soekarno Hatta'], 'L2');
+                $e->sheet->append(["Nomor: {$noSurat}"], 'L3');
+                $e->sheet->append(["Tanggal: {$tglSurat}"], 'L4');
 
                 // title
-                $e->sheet->getDelegate()->mergeCells('A7:M7');
-                $e->sheet->getDelegate()->mergeCells('A8:M8');
-                $e->sheet->getDelegate()->mergeCells('A9:M9');
+                $e->sheet->getDelegate()->mergeCells('A7:N7');
+                $e->sheet->getDelegate()->mergeCells('A8:N8');
+                $e->sheet->getDelegate()->mergeCells('A9:N9');
 
                 $e->sheet->getDelegate()->getStyle('A7:A8')->applyFromArray([
                     'font' => [
@@ -150,17 +152,17 @@ WithCustomStartCell, WithEvents, WithColumnFormatting
                 $e->sheet->append(['DAFTAR BARANG-BARANG IMPOR YANG DINYATAKAN'],'A7');
                 $e->sheet->append(['SEBAGAI BARANG TIDAK DIKUASAI'],'A8');
                 
-                // nama TPS
-                $e->sheet->getDelegate()->getStyle('A9:M9')->applyFromArray([
+                /* // nama TPS
+                $e->sheet->getDelegate()->getStyle('A9:N9')->applyFromArray([
                     'font' => [
                         'bold' => true
                     ]
                 ]);
-                $e->sheet->append([$namaTps], 'A9');
+                $e->sheet->append([$namaTps], 'A9'); */
 
                 // append heading rows (with style)
                 // set all common heading styles (center align, bold)
-                $e->sheet->getDelegate()->getStyle('A10:M11')->applyFromArray([
+                $e->sheet->getDelegate()->getStyle('A10:N11')->applyFromArray([
                     'font' => ['bold' => true],
                     'alignment' => ['horizontal'=>'center', 'vertical'=>'center']
                 ]);
@@ -205,12 +207,16 @@ WithCustomStartCell, WithEvents, WithColumnFormatting
                 $e->sheet->getDelegate()->setCellValue('K11', 'NAMA');
                 $e->sheet->getDelegate()->setCellValue('L11', 'ALAMAT');
 
-                // KETERANGAN
+                // TPS
                 $e->sheet->getDelegate()->mergeCells('M10:M11');
-                $e->sheet->getDelegate()->setCellValue('M10', 'KETERANGAN');
+                $e->sheet->getDelegate()->setCellValue('M10', 'KODE TPS');
+
+                // KETERANGAN
+                $e->sheet->getDelegate()->mergeCells('N10:N11');
+                $e->sheet->getDelegate()->setCellValue('N10', 'KETERANGAN');
 
                 // Color and border all heading row
-                $e->sheet->getDelegate()->getStyle("A10:M11")->applyFromArray([
+                $e->sheet->getDelegate()->getStyle("A10:N11")->applyFromArray([
                     'fill' => [
                         'fillType' => 'solid',
                         'color' => [ 'rgb' => 'DDDDDD' ]
@@ -277,6 +283,7 @@ WithCustomStartCell, WithEvents, WithColumnFormatting
             $row->ringkasan_uraian_barang,
             $row->nama_importir,
             $row->alamat_importir,
+            $row->tps->kode,
             ''
         ];
     }
