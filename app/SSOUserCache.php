@@ -39,7 +39,7 @@ class SSOUserCache extends Model
             // call method
             $data = $sso->getUserById($id);
 
-            return $data['data'];
+            return $data['data'][0];
         } catch (\Exception $e) {
             Log::error($e->getMessage(), [
                 'request'   => [

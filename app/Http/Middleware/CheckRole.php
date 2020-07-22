@@ -73,7 +73,7 @@ class CheckRole
             'name' => $userInfo['name'],
             'nip' => $userInfo['nip'],
             'pangkat' => $userInfo['pangkat'] ?? '',
-            'penempatan' => $userInfo['penempatan'] ?? '',
+            'penempatan' => $userInfo['kode'] ?? '',
             'status' => $userInfo['status']
         ]);
 
