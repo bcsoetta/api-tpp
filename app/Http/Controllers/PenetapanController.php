@@ -119,8 +119,9 @@ class PenetapanController extends ApiController
             }
 
             // lock it?
+            $flatKodeTps = implode(',', $kdTps);
             $p->lock()->create([
-                'keterangan' => "Penetapan BTD untuk tps {$kdTps}",
+                'keterangan' => "Penetapan BTD untuk tps {$flatKodeTps}",
                 'petugas_id' => $r->userInfo['user_id']
             ]);
             $p->appendStatus('LOCKED');
@@ -157,7 +158,7 @@ class PenetapanController extends ApiController
             ]);
         } catch (\Throwable $e) {
             DB::rollBack();
-            return $this->errorBadRequest($e->getMessage());
+            return $this->errorBadRequest($e->getMessage() /* . " @ line " . $e->getLine() . ' of '. $e->getFile() */);
         }
     }
 
