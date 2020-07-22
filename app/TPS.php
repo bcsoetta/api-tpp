@@ -22,6 +22,10 @@ class TPS extends Model
 
     // scopes
     public function scopeByKode($query, $kode) {
+        // if array, do something different
+        if (is_array($kode)) {
+            return $query->whereIn('kode', $kode);
+        }
         return $query->where('kode', $kode);
     }
 
