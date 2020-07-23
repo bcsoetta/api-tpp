@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*'],
+    'paths' => ['*'],
 
     'allowed_methods' => ['*'],
 
@@ -25,7 +25,14 @@ return [
 
     'allowed_headers' => ['*'],
 
-    'exposed_headers' => [],
+    'exposed_headers' => [
+        'Content-Disposition',
+        'Content-Type',
+        'Content-Length',
+        'X-Content-Filesize',
+        'X-Content-Type',
+        'X-Suggested-Filename',
+    ],
 
     'max_age' => 0,
 
