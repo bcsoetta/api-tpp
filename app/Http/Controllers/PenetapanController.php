@@ -101,10 +101,20 @@ class PenetapanController extends ApiController
 
             $pejabat = SSOUserCache::byId($pejabat_id);
 
+            // grab nomor_lengkap_dok
+            $nomor_surat = trim($r->get('nomor_lengkap_dok')); // strtoupper( trim( expectSomething( $r->get('nomor_lengkap_dok'), 'Nomor Surat Penetapan (Cek Nadine)') ) );
+
+            // if not set
+            if (!$nomor_surat) {
+                $nomor_surat = "<PENETAPAN - " . str_pad( getSequence("PENETAPAN", date('Y')), 5, "0", STR_PAD_LEFT) . ">";
+            } else {
+                $nomor_surat = strtoupper($nomor_surat);
+            }
+
             // ok, now we make a new Penetapan
             $p = new Penetapan([
                 'kode_kantor'   => '050100',
-                'nomor_lengkap_dok' => strtoupper( trim( expectSomething( $r->get('nomor_lengkap_dok'), 'Nomor Surat Penetapan (Cek Nadine)') ) ),
+                'nomor_lengkap_dok' => $nomor_surat,
                 'tgl_dok' => expectSomething($r->get('tgl_dok'), 'Tanggal Surat Penetapan'),
                 'pejabat_id' => $pejabat_id
             ]);
