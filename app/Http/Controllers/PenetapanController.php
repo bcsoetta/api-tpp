@@ -9,6 +9,7 @@ use App\SSOUserCache;
 use App\TPS;
 use App\Transformers\EntryManifestTransformer;
 use App\Transformers\PenetapanTransformer;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -190,9 +191,39 @@ class PenetapanController extends ApiController
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function updateSuratPenetapan(Request $r, $id)
     {
-        //
+        DB::beginTransaction();
+        // update surat penetapan aja
+        try {
+            $p = Penetapan::findOrFail($id);
+
+            // grab data
+            $nomor_surat = expectSomething(strtoupper(trim($r->get('nomor_lengkap_dok') ?? $r->get('nomor_lengkap'))), 'Nomor Surat Penetapan');
+            $tgl_surat = expectSomething($r->get('tgl_dok'), "Tanggal Surat Penetapan");
+
+            // safe to continue
+            $p->nomor_lengkap_dok = $nomor_surat;
+            $p->tgl_dok = $tgl_surat;
+
+            $p->save();
+
+            // log it?
+            AppLog::logInfo("Penetapan #{$id} diedit nomor suratnya oleh {$r->userInfo['username']}", $p, true);
+
+            // just tell em it's good
+            DB::commit();
+
+            return $this->setStatusCode(204)
+                        ->respondWithEmptyBody();
+
+        } catch (ModelNotFoundException $e) {
+            DB::rollBack();
+            return $this->errorNotFound("Penetapan #{$id} was not found");
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return $this->errorBadRequest($e->getMessage());
+        }
     }
 
     /**
