@@ -128,6 +128,10 @@ Route::get('/penetapan/{id}/awb', 'PenetapanController@indexAwb')
 Route::put('/tps/{kode}/penetapan', 'PenetapanController@store')
 ->middleware( 'role:PELAKSANA,CONSOLE');
 
+// edit surat penetapan
+Route::patch('/penetapan/{id}', 'PenetapanController@updateSuratPenetapan')
+->middleware('role:PELAKSANA,CONSOLE');
+
 // GATE-IN
 // ====================================================
 // gate in an AWB based on id

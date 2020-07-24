@@ -202,6 +202,11 @@ class PenetapanController extends ApiController
             $nomor_surat = expectSomething(strtoupper(trim($r->get('nomor_lengkap_dok') ?? $r->get('nomor_lengkap'))), 'Nomor Surat Penetapan');
             $tgl_surat = expectSomething($r->get('tgl_dok'), "Tanggal Surat Penetapan");
 
+            // let's force them to be serious
+            if (!preg_match('/^(S|KEP)-\d+/i', $nomor_surat)) {
+                throw new \Exception("Nomor Surat tidak sesuai skema Surat/KEP penetapan BTD/BMN");
+            }
+
             // safe to continue
             $p->nomor_lengkap_dok = $nomor_surat;
             $p->tgl_dok = $tgl_surat;
