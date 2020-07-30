@@ -72,7 +72,7 @@ WithEvents, WithColumnFormatting
     function map($row): array
     {
         return [
-            $row->no,
+            $row->bcp->nomor_lengkap_dok,
             str_pad($row->no_bc11, 6, '0', STR_PAD_LEFT),
             $row->tgl_bc11,
             $row->pos_formatted,
@@ -154,7 +154,7 @@ WithEvents, WithColumnFormatting
                  */
                 // no, merged cells
                 $s->mergeCells('A8:A9');
-                $s->setCellValue('A8', 'No.');
+                $s->setCellValue('A8', 'No. BCP');
                 // BC11
                 $s->mergeCells('B8:D8');
                 $s->setCellValue('B8', 'BC 1.1');
