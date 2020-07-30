@@ -57,7 +57,7 @@ trait TraitStatusable {
                         ->select(['status.statusable_id'])
                         ->get();
         // now find all bpj's whose id is in that
-        return $query->whereIn('id', $dokIds);
+        return $query->whereIn($this->table . '.id', $dokIds);
     }
 
     public function scopeByLastStatusOtherThan($query, $status) {

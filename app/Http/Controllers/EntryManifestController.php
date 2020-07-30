@@ -44,6 +44,8 @@ class EntryManifestController extends ApiController
 
         $siap_rekam_ba_cacah = $r->get('siap_rekam_ba_cacah');
 
+        $orderBy = $r->get('orderBy');
+
         $query = EntryManifest::query()
             ->when($awb, function ($query) use ($awb) {
                 $query->awb($awb);
@@ -99,8 +101,26 @@ class EntryManifestController extends ApiController
             ->when($status, function ($query) use ($status) {
                 $query->byLastStatus($status);
             })
-            ->latest()
-            ->orderBy('id', 'desc')
+            // when no definite order set, order by latest and then id in descending order
+            // (newest shown first)
+            ->when(!$orderBy, function ($query) {
+                $query->latest()
+                    ->orderBy('id', 'desc');
+            })
+            // when orderBy is set
+            ->when($r->get('orderBy'), function ($query) use ($r) {
+                $orderBy = $r->get('orderBy');
+                $orderBy = explode(',',$orderBy);
+                $query->select('entry_manifest.*');
+                foreach ($orderBy as $ord) {
+                    $ord = explode('|', $ord);
+                    if ($ord[0] == 'bcp') {
+                        $query->with('bcp')->leftJoin('bcp', 'bcp.entry_manifest_id', '=', 'entry_manifest.id')
+                            ->orderBy('bcp.nomor_lengkap_dok', $ord[1])
+                        ;
+                    }
+                }
+            })
         ;
 
         $number = $r->get('show_all') ? $query->count() : $r->get('number', 10);
