@@ -51,7 +51,14 @@ class EntryManifestController extends ApiController
                 $query->awb($awb);
             })
             ->when($q, function ($query) use ($q) {
-                $query->wild($q);
+                $query->wild($q)
+                    ->orWhere(function($q1) use ($q) {
+                        $q1->byDetailBarang($q);
+                    })
+                    ->orWhere(function($q1) use ($q) {
+                        $q1->byDetailPencacahan($q);
+                    })
+                    ;
             })
             ->when($consignee, function ($query) use ($consignee) {
                 $query->importir($consignee);
