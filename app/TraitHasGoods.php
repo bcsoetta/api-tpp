@@ -17,4 +17,11 @@ trait TraitHasGoods {
 
         return implode(";\n", $uraianPendek);
     }
+
+    // scopes
+    public function scopeByDetailBarang($query, $q='') {
+        return $query->whereHas('detailBarang', function ($q1) use ($q) {
+            $q1->where('uraian', 'like', "%$q%");
+        });
+    }
 }
