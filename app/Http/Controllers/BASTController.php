@@ -101,6 +101,17 @@ class BASTController extends ApiController
             $petugas_id = $r->userInfo['user_id'];
             SSOUserCache::byId($petugas_id);
 
+            // grab entry_manifest_id
+            $entry_manifest_ids = expectSomething($r->get('entry_manifest_id'), 'List AWB');
+
+            if (!is_array($entry_manifest_ids)) {
+                throw new \Exception("entry_manifest_id harus berupa array!");
+            }
+
+            if (!count($entry_manifest_ids)) {
+                throw new \Exception("List AWB tidak boleh kosong!");
+            }
+
             // ok, now we make a new Penetapan
             // $p = new Penetapan([
             //     'kode_kantor'   => '050100',
@@ -135,10 +146,15 @@ class BASTController extends ApiController
             AppLog::logInfo("BAST #{$b->id} direkam oleh {$r->userInfo['username']}", $b, false);
 
             // now we fill the assignment
-            $ms = $tps->entryManifest()->siapRekamBAST()->get();
+            // $ms = $tps->entryManifest()->siapRekamBAST()->get();
 
             // for each of them, add to penetapan
-            foreach ($ms as $m) {
+            foreach ($entry_manifest_ids as $entry_manifest_id) {
+                $m = EntryManifest::findOrFail($entry_manifest_id);
+                // bail if it's already have a bast
+                if ($m->bast()->count()) {
+                    throw new \Exception("AWB #{$m->id} '{$m->hawb}' sudah direkam oleh BAST lain!");
+                }
                 // add to penetapan
                 $b->entryManifest()->save($m);
 
@@ -157,7 +173,7 @@ class BASTController extends ApiController
             // return info on how many was assigned
             return $this->respondWithArray([
                 'id' => (int) $b->id,
-                'total' => count($ms),
+                'total' => count($entry_manifest_ids),
                 'nomor' => $b->nomor_lengkap_dok
             ]);
         } catch (\Throwable $e) {
