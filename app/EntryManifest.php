@@ -176,4 +176,27 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
             $q->where('jenis', 'BDN');
         });
     }
+
+    // rollback Gate In
+    public function rollbackGateIn() {
+        // grab em
+        $m = $this;
+
+        if ( !($m->last_status && $m->last_status->status == 'GATE-IN') ) {
+            throw new \Exception("Cuma AWB yg status gate-in aja y bsa dirollback status GATE-IN nya");
+        }
+
+        // start from status
+        $m->last_status->detail->delete();
+        $m->last_status->delete();
+
+        // delete bcp
+        $m->bcp->delete();
+
+        // delete tracking
+        if (!($m->last_tracking && $m->last_tracking->lokasi->kode == 'TPPSH')) {
+            throw new \Exception("Last tracking bukan di TPP!");
+        }
+        $m->last_tracking->delete();
+    }
 }
