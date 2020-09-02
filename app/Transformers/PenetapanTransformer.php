@@ -8,11 +8,13 @@ class PenetapanTransformer extends TransformerAbstract {
 
     protected $availableIncludes = [
         'pejabat',
-        'entry_manifest'
+        'entry_manifest',
+        'tps'
     ];
 
     protected $defaultIncludes = [
-        'pejabat'
+        'pejabat',
+        'tps'
     ];
 
     public function transform(Penetapan $p) {
@@ -36,5 +38,13 @@ class PenetapanTransformer extends TransformerAbstract {
 
     public function includeEntryManifest(Penetapan $p) {
         return $this->collection($p->entryManifest, new EntryManifestTransformer);
+    }
+
+    public function includeTps(Penetapan $p) {
+        if ($p->jenis == 'PENETAPAN_BTD') {
+            if ($p->entryManifest[0]) {
+                return $this->item($p->entryManifest[0]->tps, new TPSTransformer);
+            }
+        }
     }
 }
