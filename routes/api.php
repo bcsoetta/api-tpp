@@ -93,6 +93,10 @@ Route::post('/awb', 'EntryManifestController@postFromExcel')
 Route::delete('/awb/{id}', 'EntryManifestController@destroy')
 ->middleware( 'role:PELAKSANA,CONSOLE');
 
+// rollback gate in
+Route::delete('/awb/{id}/gate-in', 'EntryManifestController@rollbackGateIn')
+->middleware('role:CONSOLE');
+
 // EXCEL API
 // ====================================================
 // parse excel file for initial data input

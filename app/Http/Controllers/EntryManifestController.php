@@ -512,4 +512,24 @@ class EntryManifestController extends ApiController
             return $this->errorBadRequest($e->getMessage());
         }
     }
+
+    public function rollbackGateIn(Request $r, $id) {
+        DB::beginTransaction();
+        try {
+            // grab em
+            $m = EntryManifest::findOrFail($id);
+
+            $m->rollbackGateIn();
+
+            DB::commit();
+
+            AppLog::logInfo("EntryManifest #{$id} dirollback status gateinnya");
+
+            return $this->setStatusCode(204)
+                        ->respondWithEmptyBody();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
 }
