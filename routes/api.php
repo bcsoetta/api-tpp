@@ -13,19 +13,10 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-/* 
-$corsGroup = [
-    'readOnly'  => '',//'cors:GET,OPTIONS',  // item yg read only cuman bsa GET sama OPTIONS
-    'singleItem'=> '',//'cors:GET,PUT,DELETE,OPTIONS,PATCH', // single item bsa macem2
-    'all'       => '',//'cors:*',    // klo bisa jgn pake ini ya
-    'resourceGroup'  => '',//'cors:GET,POST,OPTIONS' // group bisa diinsert, dilihat, dicek
-]; */
 
-// Kayaknya bagusnya digroup per endpoints dah
-// OPTIONS /* untuk menghandle preflight CORS request
-/* Route::options('/{fuckers}', 'ApiController@options')
-        ->where('fuckers', '.+')
-        ->middleware('cors:GET,POST,PUT,DELETE,OPTIONS,PATCH,HEAD'); */
+// DATA REFERENSI UMUM
+// ====================================================
+Route::get('/referensi-dokumen-penyelesaian', 'ReferensiController@indexReferensiDokumenPenyelesaian');
 
 // SSO, USER-RELATED
 // ====================================================
