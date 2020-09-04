@@ -18,6 +18,15 @@ use Illuminate\Support\Facades\Route;
 // ====================================================
 Route::get('/referensi-dokumen-penyelesaian', 'ReferensiController@indexReferensiDokumenPenyelesaian');
 
+Route::post('/referensi-dokumen-penyelesaian', 'ReferensiController@storeReferensiDokumenPenyelesaian')
+->middleware('role:CONSOLE');
+
+Route::delete('/referensi-dokumen-penyelesaian/{id}', 'ReferensiController@destroyReferensiDokumenPenyelesaian')
+->middleware('role:CONSOLE');
+
+Route::put('/referensi-dokumen-penyelesaian/{id}', 'ReferensiController@updateReferensiDokumenPenyelesaian')
+->middleware('role:CONSOLE');
+
 // SETTING
 // ====================================================
 Route::get('/setting', 'SettingController@index')
