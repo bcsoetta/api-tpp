@@ -18,6 +18,11 @@ use Illuminate\Support\Facades\Route;
 // ====================================================
 Route::get('/referensi-dokumen-penyelesaian', 'ReferensiController@indexReferensiDokumenPenyelesaian');
 
+// SETTING
+// ====================================================
+Route::get('/setting', 'SettingController@index')
+->middleware('role');
+
 // SSO, USER-RELATED
 // ====================================================
 // show all user based on a certain parameter
