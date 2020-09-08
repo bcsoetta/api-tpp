@@ -13,7 +13,7 @@ class PenyelesaianTransformer extends TransformerAbstract {
         return [
             'nomor_lengkap_dok' => (string) $p->nomor_lengkap_dok,
             'tgl_dok' => (string) $p->tgl_dok,
-            'jenis_dokumen' => (string) $p->jenis_dokumen
+            'jenis_dokumen_id' => (int) $p->jenis_dokumen_id
         ];
     }
 

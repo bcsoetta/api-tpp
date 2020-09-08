@@ -579,7 +579,7 @@ class EntryManifestController extends ApiController
 
             // append status
             $m->appendStatus(
-                'Penyelesaian',
+                'PENYELESAIAN',
                 null,
                 "Diselesaikan dengan {$ref->nama} nomor {$nomor_lengkap_dok} tgl {$tgl_dok}. Direkam oleh {$r->userInfo['username']}",
                 $p
