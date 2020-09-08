@@ -96,8 +96,8 @@ class BACacahController extends ApiController
             $nomor_lengkap = expectSomething($r->get('nomor_lengkap'), 'Nomor Lengkap BA Cacah');
             $tgl_dok = expectSomething($r->get('tgl_dok'), 'Tanggal BA Cacah');
             
-            $nomor_st = expectSomething($r->get('nomor_st'), 'Nomor Surat Tugas');
-            $tgl_st = expectSomething($r->get('tgl_st'), 'Tanggal Surat Tugas');          
+            // $nomor_st = expectSomething($r->get('nomor_st'), 'Nomor Surat Tugas');
+            // $tgl_st = expectSomething($r->get('tgl_st'), 'Tanggal Surat Tugas');          
 
             $pejabat_id = expectSomething($r->get('pejabat_id'), 'Pejabat Yang Mengetahui');
 
@@ -115,8 +115,8 @@ class BACacahController extends ApiController
                 'nomor_lengkap_dok' => $nomor_lengkap,
                 'tgl_dok' => $tgl_dok,
 
-                'nomor_st' => $nomor_st,
-                'tgl_st' => $tgl_st,
+                /* 'nomor_st' => $nomor_st,
+                'tgl_st' => $tgl_st, */
 
                 'pejabat_id' => $pejabat->user_id
             ]);
