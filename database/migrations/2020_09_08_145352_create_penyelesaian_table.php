@@ -23,11 +23,12 @@ class CreatePenyelesaianTable extends Migration
             $this->addDokumenColumns($table);
             // entry manifest id
             // first, jenis dokumen
-            $table->string('jenis_dokumen');
+            $table->unsignedBigInteger('jenis_dokumen_id');
             $table->unsignedInteger('petugas_id');
 
             // foreign keys
             $table->foreign('petugas_id')->references('user_id')->on('sso_user_cache');
+            $table->foreign('jenis_dokumen_id')->references('id')->on('referensi_dokumen_penyelesaian');
 
             $table->timestamps();
         });

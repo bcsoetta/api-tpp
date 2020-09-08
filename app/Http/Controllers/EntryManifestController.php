@@ -9,6 +9,8 @@ use App\EntryManifest;
 use App\Keterangan;
 use App\Lokasi;
 use App\Penetapan;
+use App\Penyelesaian;
+use App\ReferensiDokumenPenyelesaian;
 use App\SSOUserCache;
 use App\TPS;
 use App\Tracking;
@@ -524,6 +526,78 @@ class EntryManifestController extends ApiController
             DB::commit();
 
             AppLog::logInfo("EntryManifest #{$id} dirollback status gateinnya");
+
+            return $this->setStatusCode(204)
+                        ->respondWithEmptyBody();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    /**
+     * store penyelesaian
+     */
+    public function storePenyelesaian(Request $r, $id) {
+        DB::beginTransaction();
+        try {
+            // rekam penyelesaian, check entry manifest id
+            $m = EntryManifest::findOrFail($id);
+
+            if ($m->is_locked) {
+                throw new \Exception("Entry Manifest ini sudah terkunci!");
+            }
+
+            // read input
+            $nomor_lengkap_dok = expectSomething($r->get('nomor_lengkap_dok'), 'Nomor Dokumen Penyelesaian');
+            $tgl_dok = expectSomething($r->get('tgl_dok'), 'Tanggal Dokumen Penyelesaian');
+            $jenis_dokumen_id = expectSomething($r->get('jenis_dokumen') ?? $r->get('jenis_dokumen_id'), 'ID Jenis Dokumen Penyelesaian');
+
+            $petugas_id = $r->userInfo['user_id'];
+            $petugas = SSOUserCache::byId($petugas_id);
+
+            // create new entry and save header
+            $p = new Penyelesaian([
+                'nomor_lengkap_dok' => $nomor_lengkap_dok,
+                'tgl_dok' => $tgl_dok,
+                'jenis_dokumen_id' => $jenis_dokumen_id
+            ]);
+
+            $p->petugas()->associate($petugas);
+            $p->save();
+
+            // add detail
+            $p->entryManifest()->save($m);
+
+            // lock entry manifest
+            $ref = ReferensiDokumenPenyelesaian::findOrFail($jenis_dokumen_id);
+            
+            $m->lock()->create([
+                'petugas_id' => $petugas_id,
+                'keterangan' => 'Penyelesaian dengan ' . $ref->nama
+            ]);
+
+            // append status
+            $m->appendStatus(
+                'Penyelesaian',
+                null,
+                "Diselesaikan dengan {$ref->nama} nomor {$nomor_lengkap_dok} tgl {$tgl_dok}. Direkam oleh {$r->userInfo['username']}",
+                $p
+            );
+
+            // log info
+            AppLog::logInfo(
+                "Entry Manifest #{$id} direkam penyelesaiannya oleh {$r->userInfo['username']}",
+                $m, 
+                false
+            );
+            AppLog::logInfo(
+                "Dokumen Penyelesaian #{$p->id} direkam oleh {$r->userInfo['username']}",
+                $p,
+                false
+            );
+
+            DB::commit();
 
             return $this->setStatusCode(204)
                         ->respondWithEmptyBody();

@@ -15,7 +15,8 @@ class EntryManifestTransformer extends TransformerAbstract {
         'tracking',
         'pencacahan',
         'last_tracking',
-        'lampiran'
+        'lampiran',
+        'penyelesaian'
     ];
 
     protected $defaultIncludes = [
@@ -27,7 +28,8 @@ class EntryManifestTransformer extends TransformerAbstract {
         'tracking',
         'pencacahan',
         'last_tracking',
-        'lampiran'
+        'lampiran',
+        'penyelesaian'
     ];
 
     public function transform(EntryManifest $m) {
@@ -116,5 +118,10 @@ class EntryManifestTransformer extends TransformerAbstract {
     public function includeLampiran(EntryManifest $m) {
         $l = $m->lampiran;
         return $this->collection($l, new LampiranTransformer);
+    }
+
+    public function includePenyelesaian(EntryManifest $m) {
+        $p = $m->penyelesaian;
+        return $this->collection($p, new PenyelesaianTransformer);
     }
 }

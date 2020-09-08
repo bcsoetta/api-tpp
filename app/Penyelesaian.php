@@ -19,6 +19,10 @@ class Penyelesaian extends AbstractDokumen
         return $this->belongsToMany(EntryManifest::class, 'penyelesaian_detail', 'penyelesaian_id', 'entry_manifest_id')->withTimestamps();
     }
 
+    public function jenisDokumen() {
+        return $this->belongsTo(ReferensiDokumenPenyelesaian::class, 'jenis_dokumen_id');
+    }
+
     public function petugas() {
         return $this->belongsTo(SSOUserCache::class, 'petugas_id', 'user_id');
     }

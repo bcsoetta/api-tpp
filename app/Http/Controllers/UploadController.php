@@ -37,9 +37,9 @@ class UploadController extends ApiController
 
         // handle the file upload
         // unless it's locked
-        if ($master->is_locked) {
+        /* if ($master->is_locked) {
             throw new \Exception("Can't upload cause data is locked already!");
-        }
+        } */
 
         return $master;
     }

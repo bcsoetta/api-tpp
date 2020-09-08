@@ -50,6 +50,10 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $this->belongsToMany(BACacah::class, 'ba_cacah_detail', 'entry_manifest_id', 'ba_cacah_id')->withTimestamps();
     }
 
+    public function penyelesaian() {
+        return $this->belongsToMany(Penyelesaian::class, 'penyelesaian_detail', 'entry_manifest_id', 'penyelesaian_id')->withTimestamps();
+    }
+
     // custom attributes
     public function getWaktuGateInAttribute() {
         $t = $this->tracking()->byLokasi(Lokasi::find(2))->first();
