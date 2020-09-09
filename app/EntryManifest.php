@@ -2,6 +2,7 @@
 
 namespace App;
 
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
@@ -54,6 +55,10 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $this->belongsToMany(Penyelesaian::class, 'penyelesaian_detail', 'entry_manifest_id', 'penyelesaian_id')->withTimestamps();
     }
 
+    public function pnbp() {
+        return $this->hasOne(PNBP::class, 'entry_manifest_id');
+    }
+
     // custom attributes
     public function getWaktuGateInAttribute() {
         $t = $this->tracking()->byLokasi(Lokasi::find(2))->first();
@@ -61,6 +66,18 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
             return $t->created_at;
         }
         return null;
+    }
+
+    public function getDaysTillNowAttribute() {
+        // kalau belum pernah digate in, berarti 0 (gratis)
+        if (!$this->waktu_gate_in) {
+            return 0;
+        }
+
+        $start = date_create($this->waktu_gate_in->toDateString());
+        $end = date_create( date('Y-m-d') );
+        $diff = date_diff($start, $end);
+        return $diff->days;
     }
 
     public function getPosFormattedAttribute() {
@@ -172,6 +189,47 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
                 // but doesn't have baCacah
                 ->whereDoesntHave('baCacah')
                 ->unlocked();
+    }
+
+    // siap dipnbp (udh berumur sejak gate in + sudah ada penyelesaian)
+    public function scopeSiapPNBP($query) {
+        return $query->whereHas('penyelesaian')
+                    ->whereDoesntHave('pnbp')
+                    ->agedSinceGateIn()
+                    ->hasGateOut(false)
+                    ->locked();
+    }
+
+    // agedSinceGateIn
+    public function scopeAgedSinceGateIn($query) {
+        return $query->whereHas('status', function ($q) {
+            $q->where('status', 'GATE-IN')
+                ->whereRaw('DATEDIFF(NOW(), status.created_at) > 0');
+        });
+    }
+
+    // siap digate out := sudah ada penyelesaian & belum gate out
+    public function scopeSiapGateOut($query) {
+        return $query->whereHas('penyelesaian')
+                    ->locked()
+                    ->hasGateOut(false)
+                    ;
+    }
+
+    // sudah gate out
+    public function scopeHasGateOut($query, $flag = true) {
+        $lokasi_gate_out = Lokasi::byKode('GATEOUT')->first();
+
+        if ($flag) {
+            return $query->whereHas('tracking', function ($q) use ($lokasi_gate_out) {
+                $q->byLokasi($lokasi_gate_out);
+            });
+        }
+
+        // check for negatives
+        return $query->whereDoesntHave('tracking', function ($q) use ($lokasi_gate_out) {
+            $q->byLokasi($lokasi_gate_out);
+        });
     }
 
     // barang ex bdn

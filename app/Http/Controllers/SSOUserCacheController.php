@@ -40,7 +40,7 @@ class SSOUserCacheController extends ApiController
                 $data['data'] = array_values(array_filter($data['data'], function ($e) use ($q) {
                     $pattern = "/$q/i";
 
-                    return preg_match($pattern, $e['name']) || preg_match($pattern, $e['nip']);
+                    return (preg_match($pattern, $e['name']) || preg_match($pattern, $e['nip']));
                 }));
 
                 // remove key?

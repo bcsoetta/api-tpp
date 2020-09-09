@@ -151,6 +151,12 @@ Route::patch('/penetapan/{id}', 'PenetapanController@updateSuratPenetapan')
 Route::put('/awb/{id}/gate-in', 'EntryManifestController@storeGateIn')
 ->middleware( 'role:PELAKSANA,CONSOLE');
 
+// GATE-OUT
+// ====================================================
+// gate out AWB based on id
+Route::put('/awb/{id}/gate-out', 'EntryManifestController@storeGateOut')
+->middleware('role:PELAKSANA,CONSOLE');
+
 // BAST
 // ====================================================
 // index all bast
@@ -205,3 +211,20 @@ Route::get('/ba_cacah/{id}', 'BACacahController@show')
 // store
 Route::post('/ba_cacah', 'BACacahController@store')
 ->middleware( 'role');
+
+// PNBP
+// ====================================================
+// index all pnbp
+Route::get('/pnbp', 'PNBPController@index')
+->middleware('role');
+
+// show one pnbp
+Route::get('/pnbp/{id}', 'PNBPController@show')
+->middleware('role');
+
+// recalculate pnbp
+Route::patch('/pnbp/{id}', 'PNBPController@patch')
+->middleware('role');
+
+// compute mockup
+Route::get('/awb/{id}/pnbp-mockup', 'PNBPController@precalculatePNBP');

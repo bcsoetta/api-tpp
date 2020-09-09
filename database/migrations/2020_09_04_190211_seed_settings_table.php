@@ -33,6 +33,6 @@ class SeedSettingsTable extends Migration
     public function down()
     {
         // should empty that? yep
-        DB::table('setting')->truncate();
+        // DB::table('setting')->truncate();
     }
 }

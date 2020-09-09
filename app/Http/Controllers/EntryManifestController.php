@@ -46,6 +46,9 @@ class EntryManifestController extends ApiController
 
         $siap_rekam_ba_cacah = $r->get('siap_rekam_ba_cacah');
 
+        $siap_pnbp = $r->get('siap_pnbp');
+        $siap_gate_out = $r->get('siap_gate_out');
+
         $orderBy = $r->get('orderBy');
 
         $query = EntryManifest::query()
@@ -106,6 +109,12 @@ class EntryManifestController extends ApiController
             })
             ->when($siap_rekam_ba_cacah, function ($query) {
                 $query->siapRekamBACacah();
+            })
+            ->when($siap_pnbp, function ($query) {
+                $query->siapPNBP();
+            })
+            ->when($siap_gate_out, function ($query) {
+                $query->siapGateOut();
             })
             ->when($status, function ($query) use ($status) {
                 $query->byLastStatus($status);
@@ -599,6 +608,78 @@ class EntryManifestController extends ApiController
 
             DB::commit();
 
+            return $this->setStatusCode(204)
+                        ->respondWithEmptyBody();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    /**
+     * Store Gate out. pake validasi
+     */
+    public function storeGateOut(Request $r, $id) {
+        DB::beginTransaction();
+
+        try {
+            // grab data
+            $m = EntryManifest::findOrFail($id);
+
+            // utk bisa di gate out, ada beberapa syarat
+            // 1. harus sudah ada penyelesaian atau risalah lelang
+            // 2. kalo udh berumur, harus ada pnbp dan pnbpnya sudah lunas (locked)
+
+            // check penyelesaian (collection)
+            if (!$m->penyelesaian()->count()) {
+                throw new \Exception("Entry Manifest ini belum ada penyelesaiannya!");
+            }
+
+            // kalau berumur, harus ada pnbp dan lunas
+            if ($m->days_till_now) {
+                // ada umur, check apakah ada pnbp
+                if (!$m->pnbp) {
+                    throw new \Exception("Entry Manifest sudah {$m->days_till_now} hari di TPP, harap rekamkan PNBPnya terlebih dahulu!");
+                } else {
+                    // ada PNBP, check apakah sudah lunas
+                    if (!$m->pnbp->is_locked) {
+                        throw new \Exception("Entry Manifest sudah ada PNBPnya, tapi belum direkam pelunasannya!");
+                    }
+                }
+            }
+
+            // pastikan belum gate out
+            $hasGateOut = $m->tracking()->byLokasi(Lokasi::byKode('GATEOUT')->first())->count();
+
+            // only process if hasn't gate out
+            if (!$hasGateOut) {
+                // first, append status Gate Out
+                // $m = new EntryManifest();
+                $m->appendStatus(
+                    'GATE-OUT',
+                    null,
+                    "Entry Manifest sudah di Gate-Out oleh {$r->userInfo['username']}"
+                );
+
+                // update tracking
+                $t = new Tracking();
+                $t->petugas()->associate(SSOUserCache::byId($r->userInfo['user_id']));
+                $t->lokasi()->associate(Lokasi::byKode('GATEOUT')->first());
+
+                $m->tracking()->save($t);
+
+                // log
+                AppLog::logInfo(
+                    "Entry Manifest #{$id} di gate out oleh {$r->userInfo['username']}",
+                    $m,
+                    false
+                );
+            }
+
+            // commit?
+            DB::commit();
+
+            // return 204 (success, no data)
             return $this->setStatusCode(204)
                         ->respondWithEmptyBody();
         } catch (\Throwable $e) {
