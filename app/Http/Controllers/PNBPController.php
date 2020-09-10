@@ -58,7 +58,11 @@ class PNBPController extends ApiController
         }
     }
 
-    // patch type
+    /**
+     * patch type. Several operation supported
+     * - recalculate/perbarui-pungutan: recompute non-tax levy
+     * - tandai-lunas: mark as paid, append status to entry_manifest data
+     */
     public function patch(Request $r, $id) {
         
         DB::beginTransaction();
@@ -74,8 +78,45 @@ class PNBPController extends ApiController
             foreach ($ops as $op) {
                 switch ($op->op) {
                 case 'recalculate':
+                case 'perbarui-pungutan':
                     // try to recalculate
-                    break;
+                    $pnbp->recalculate();
+                break;
+
+                case 'tandai-lunas':
+                    // tandai lunas (kunci pnbpnya)
+                    // gotta check for lampiran
+                    if (!$pnbp->lampiran()->count()) {
+                        throw new \Exception("Belum ada bukti bayar yang diupload!");
+                    }
+
+                    // safe to continue, grab manifest data
+                    $m = $pnbp->entryManifest;
+                    if (!$m) {
+                        throw new \Exception("PNBP ini tidak ada dokumen dasarnya!");
+                    }
+
+                    // check apakah perlu diperbaharui perhitungannya
+                    if ($pnbp->total_hari != $m->days_till_now) {
+                        throw new \Exception("Total hari di TPP sudah berbeda dari perhitungan awal (awal: {$pnbp->total_hari} hari, sekarang: {$m->days_till_now} hari). Harap perbarui perhitungan PNBP!");
+                    }
+
+                    // first, lock the pnbp
+                    $pnbp->lock()->create([
+                        'petugas_id' => $r->userInfo['user_id']
+                    ]);
+
+                    // append status utk entry manifestnya
+                    $m->appendStatus(
+                        'PNBP LUNAS',
+                        null, 
+                        "Bukti Pelunasan PNBP sudah direkam oleh {$r->userInfo['username']}", 
+                        $pnbp
+                    );
+
+                    AppLog::logInfo("Bukti lunas PNBP #{$pnbp->id} direkam oleh {$r->userInfo['username']}", $pnbp, false);
+                break;
+                
                 default:
                     throw new \Exception("Invalid op: [{$op->op}]!");
                 }

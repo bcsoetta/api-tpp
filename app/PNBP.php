@@ -113,4 +113,43 @@ class PNBP extends AbstractDokumen
 
         return $pnbp;
     }
+
+    // recalculate PNBP (only valid if it's unlocked)
+    public function recalculate(bool $force = false) {
+        // first, gotta check if there's new tariff?
+        $tarif_pnbp = Setting::getValue('tarif_pnbp');
+
+        if (!$tarif_pnbp) {
+            throw new \Exception("Tarif PNBP tidak ditemukan");
+            return false;
+        }
+
+        // if locked already, fail by default unless we're admin
+        if ($this->is_locked && !$force) {
+            throw new \Exception("PNBP sudah terkunci!");
+            return false;
+        }
+
+        // if there's no manifest, error
+        if (!$this->entryManifest) {
+            throw new \Exception("Tidak ditemukan entry manifest atas PNBP ini!");
+            return false;
+        }
+
+        $total_hari = $this->entryManifest->days_till_now;
+
+        // if days till now is zero, bail
+        if (!$total_hari) {
+            throw new \Exception("Masa timbun tidak mencukupi! baru {$total_hari} hari");
+            return false;
+        }
+
+        // ok, we're safe
+        $this->tarif_pnbp = $tarif_pnbp;
+        $this->total_hari = $total_hari;
+        $this->nilai_sewa = $tarif_pnbp * $total_hari * (float) $this->entryManifest->brutto;
+        $this->save();
+
+        return true;
+    }
 }

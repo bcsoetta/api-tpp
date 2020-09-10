@@ -36,6 +36,9 @@ class PNBPTransformer extends TransformerAbstract {
 
             'tgl_gate_in_text' => formatTanggal($p->tgl_gate_in),
             'tgl_gate_out_text' => formatTanggal($p->tgl_gate_out),
+
+            'brutto' => (float) $p->entryManifest->brutto,
+            'pejabat_id' => (int) $p->pejabat_id
         ];
     }
 

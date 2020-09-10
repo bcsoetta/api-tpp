@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\EntryManifest;
 use App\Lampiran;
 use App\Pencacahan;
+use App\PNBP;
 use App\Transformers\LampiranTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -16,7 +17,8 @@ class UploadController extends ApiController
     private static $mapping = [
         'awb' => EntryManifest::class,
         'hawb' => EntryManifest::class,
-        'pencacahan' => Pencacahan::class
+        'pencacahan' => Pencacahan::class,
+        'pnbp' => PNBP::class
     ];
 
     // private method to instance shiet?
