@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\AppLog;
 use App\EntryManifest;
 use App\PNBP;
+use App\SSOUserCache;
 use App\Transformers\PNBPTransformer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -103,6 +105,68 @@ class PNBPController extends ApiController
 
             return $this->respondWithItem($pnbp, new PNBPTransformer);
         } catch (\Throwable $e) {
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    /**
+     * Store PNBP, post. Make sure it's valid
+     */
+    public function store(Request $r) {
+        DB::beginTransaction();
+        try {
+            // grab request data
+            $entry_manifest_id = expectSomething($r->get('entry_manifest_id'), 'ID Entry Manifest');
+            $pejabat_id = expectSomething($r->get('pejabat_id'), 'ID Pejabat ttd');
+            $nama_bidang = expectSomething($r->get('nama_bidang'), 'Nama Bidang');
+            $nama_jabatan = expectSomething($r->get('nama_jabatan'), 'Nama Jabatan Seksi');
+            $kode_surat = expectSomething($r->get('kode_surat'), 'Kode Surat PNBP');
+            
+            // grab entry manifest, and check
+            $m = EntryManifest::findOrFail($entry_manifest_id);
+
+            // check if it's already have pnbp
+            $pnbp = $m->pnbp;
+            if ($pnbp) {
+                throw new \Exception("Entry Manifest sudah direkam PNBPnya!");
+            }
+
+            // create pnbp dari entry manifest
+            $pnbp = PNBP::generatePNBP($m);
+
+            // if success, append data
+            // $pnbp = new PNBP();
+            $pnbp->pejabat()->associate(SSOUserCache::byId($pejabat_id));
+            $pnbp->nama_bidang = $nama_bidang;
+            $pnbp->nama_jabatan = $nama_jabatan;
+            $pnbp->kode_surat = $kode_surat;
+
+            // save, and set nomor dokumen
+            $pnbp->save();
+            $pnbp->setNomorDokumen();
+
+            // log the entry manifest?
+            $m->appendStatus(
+                'PNBP CREATED', 
+                null, 
+                "PNBP telah direkam oleh {$r->userInfo['username']} dengan nomor {$pnbp->nomor_lengkap_dok} tanggal {$pnbp->tgl_dok}", 
+                $pnbp
+            );
+
+            // log it
+            AppLog::logInfo(
+                "PNBP #{$pnbp->id} telah direkam oleh {$r->userInfo['username']}",
+                $pnbp,
+                false
+            );
+
+            // commit
+            DB::commit();
+
+            // return the newly created item
+            return $this->respondWithItem($pnbp, new PNBPTransformer);
+        } catch (\Throwable $e) {
+            DB::rollBack();
             return $this->errorBadRequest($e->getMessage());
         }
     }

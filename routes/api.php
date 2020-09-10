@@ -228,3 +228,7 @@ Route::patch('/pnbp/{id}', 'PNBPController@patch')
 
 // compute mockup
 Route::get('/awb/{id}/pnbp-mockup', 'PNBPController@precalculatePNBP');
+
+// post
+Route::post('/pnbp', 'PNBPController@store')
+->middleware('role:PELAKSANA,CONSOLE');
