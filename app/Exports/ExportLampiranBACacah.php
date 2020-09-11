@@ -49,7 +49,8 @@ WithCustomStartCell, WithColumnFormatting, WithEvents
         // collect data
         $data = [];
 
-        $ms = $this->baCacah->entryManifest;
+        $src = $this->baCacah->entryManifest()->with('bcp')->get();
+        $ms = $src->sortBy('bcp.nomor_lengkap_dok');
 
         $cnt = 0;
         foreach ($ms as $m) {
@@ -144,7 +145,7 @@ WithCustomStartCell, WithColumnFormatting, WithEvents
 
                 // BCP
                 $s->mergeCells("B7:C7");
-                $s->setCellValue("B7", "BCP " . $ba->bdn_mode ? 'BDN' : 'BTD');
+                $s->setCellValue("B7", "BCP " . ($ba->bdn_mode ? 'BDN' : 'BTD') );
                 $s->setCellValue("B8", "NO");
                 $s->setCellValue("C8", "TGL");
 
