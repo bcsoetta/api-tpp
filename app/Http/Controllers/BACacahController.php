@@ -61,6 +61,8 @@ class BACacahController extends ApiController
             $from = $r->get('from');
             $to = $r->get('to');
 
+            $orderBy = $r->get('orderBy');
+
             $query = $p->entryManifest()
                     ->when($q, function ($query) use ($q) {
                         $query->wild($q);
@@ -70,7 +72,20 @@ class BACacahController extends ApiController
                     })
                     ->when($to, function ($query) use ($to) {
                         $query->to($to);
-                    });
+                    })
+                    ->when($orderBy, function ($query) use ($orderBy) {
+                        $orders = explode(',', $orderBy);
+                        $query->select('entry_manifest.*');
+                        foreach ($orders as $ord) {
+                            $ord = explode('|', $ord);
+                            if ($ord[0] == 'bcp') {
+                                $query->with('bcp')->leftJoin('bcp', 'bcp.entry_manifest_id', '=', 'entry_manifest.id')
+                                    ->orderBy('bcp.nomor_lengkap_dok', $ord[1])
+                                ;
+                            }
+                        }
+                    })
+                    ;
             $paginator = $query->paginate($r->get('number'))
                                 ->appends($r->except('page'));
             return $this->respondWithPagination($paginator, new EntryManifestTransformer);

@@ -232,3 +232,11 @@ Route::get('/awb/{id}/pnbp-mockup', 'PNBPController@precalculatePNBP');
 // post
 Route::post('/pnbp', 'PNBPController@store')
 ->middleware('role:PELAKSANA,CONSOLE');
+
+
+//====================================================================================================
+// ENDPOINTS PDF
+//====================================================================================================
+// GET /pdf?doc=lembarhitungcd&id=2
+Route::get('/pdf', 'PDFController@show')
+        ;
