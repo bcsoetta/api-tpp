@@ -14,9 +14,9 @@ class Rack extends Model
     ];
 
     // let's do something
-    
+
     // scope
     public function scopeByKode($query, $kode) {
-        return $query->where('kode', $kode);
+        return $query->where('kode', 'like', "$kode%");
     }
 }
