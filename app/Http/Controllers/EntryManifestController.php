@@ -53,6 +53,8 @@ class EntryManifestController extends ApiController
 
         $orderBy = $r->get('orderBy');
 
+        $rack_id = $r->get('rack_id');
+
         $query = EntryManifest::query()
             ->when($awb, function ($query) use ($awb) {
                 $query->awb($awb);
@@ -120,6 +122,12 @@ class EntryManifestController extends ApiController
             })
             ->when($status, function ($query) use ($status) {
                 $query->byLastStatus($status);
+            })
+            ->when($rack_id, function ($query) use ($rack_id) {
+                $rack = Rack::find($rack_id);
+                if ($rack) {
+                    $query->byLastTracking($rack);
+                }
             })
             // when no definite order set, order by latest and then id in descending order
             // (newest shown first)
