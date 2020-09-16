@@ -6,6 +6,10 @@ use League\Fractal\TransformerAbstract;
 
 class RackTransformer extends TransformerAbstract {
 
+    protected $availableIncludes = [
+        'entry_manifest'
+    ];
+
     public function transform(Rack $r) {
         return [
             'id' => (int) $r->id,
@@ -17,8 +21,14 @@ class RackTransformer extends TransformerAbstract {
             'h' => (float) $r->h,
             'rot' => (float) $r->rot,
 
+            'total_awb' => (int) $r->entryManifest()->count(),
+
             'created_at' => (string) $r->created_at,
             'updated_at' => (string) $r->updated_at,
         ];
+    }
+
+    public function includeEntryManifest(Rack $r) {
+        return $this->collection($r->entryManifest, new EntryManifestTransformer);
     }
 }

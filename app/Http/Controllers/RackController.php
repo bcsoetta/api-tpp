@@ -17,11 +17,27 @@ class RackController extends ApiController
         $q = $r->get('q');
         $show_all = $r->get('show_all');
 
+        $orderBy = $r->get('orderBy');
+
         $query = Rack::query()
         ->when($q, function ($q1) use ($q) {
             $q1->byKode($q);
         })
-        ->orderBy('kode', 'asc');
+        ->when($orderBy, function ($q1) use ($orderBy) {
+            // parse the order by
+            $q1->includeTotal();
+            
+            $arr = explode('|', $orderBy);
+            if (count($arr) >= 2) {
+                // key value
+                $key = $arr[0];
+                $value = $arr[1];
+                $q1->orderBy($key, $value);
+            }
+        })
+        ->when(!$orderBy, function ($q1) {
+            $q1->orderBy('kode', 'asc');
+        });
 
         $number = $show_all ? $query->count() : $r->get('number', 10);
 

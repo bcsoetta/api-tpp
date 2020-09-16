@@ -61,6 +61,30 @@ class Tracking extends Model
                     ->orWhere('lokasi_id', '<>', $lokasi->id);
     }
 
+    public function scopePerTrackable($query) {
+        // grab latest per trackable
+        return $query
+                ->join(
+                    DB::raw("
+                    (SELECT
+                        trackable_id tid,
+                        trackable_type ttype,
+                        MAX(tracking.id) maxid
+                    FROM
+                        tracking
+                    GROUP BY
+                        trackable_type,
+                        trackable_id
+                    ) stat
+                    "),
+                    function ($join) {
+                        $join->on('tracking.trackable_id', '=', 'stat.tid');
+                        $join->on('tracking.trackable_type', '=', 'stat.ttype');
+                        $join->on('tracking.id', '=', 'stat.maxid');
+                    }
+                );
+    }
+
     public function scopeLatestPerTrackable($query) {
         // grab latest per trackable
         return $query->latest()
@@ -87,5 +111,9 @@ class Tracking extends Model
 
     public function scopeByTrackableType($query, $trackable_type) {
         return $query->where('trackable_type', $trackable_type);
+    }
+
+    public function scopeByLokasiType($query, $lokasi_type) {
+        return $query->where('lokasi_type', $lokasi_type);
     }
 }
