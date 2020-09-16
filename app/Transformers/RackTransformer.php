@@ -10,6 +10,7 @@ class RackTransformer extends TransformerAbstract {
         return [
             'id' => (int) $r->id,
             'kode' => (string) $r->kode,
+            'nama' => "Rak {$r->kode}", 
             'x' => (float) $r->x,
             'y' => (float) $r->y,
             'w' => (float) $r->w,
