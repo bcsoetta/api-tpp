@@ -732,7 +732,7 @@ class EntryManifestController extends ApiController
         // ok, first, only valid criterion is:
         // 1. unlocked
         // 2. hasn't been gated out
-        throw new \Exception("Am i being called?");
+        // throw new \Exception("Am i being called?");
 
         // if locked, fail
         if ($m->is_locked) {
