@@ -21,7 +21,7 @@ class RackController extends ApiController
         ->when($q, function ($q1) use ($q) {
             $q1->byKode($q);
         })
-        ->orderBy('id', 'asc');
+        ->orderBy('kode', 'asc');
 
         $number = $show_all ? $query->count() : $r->get('number', 10);
 
