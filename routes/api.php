@@ -106,6 +106,10 @@ Route::delete('/awb/{id}/gate-in', 'EntryManifestController@rollbackGateIn')
 Route::put('/awb/{id}/penyelesaian', 'EntryManifestController@storePenyelesaian')
 ->middleware('role:PELAKSANA,CONSOLE');
 
+// patch ops
+Route::patch('/awb/{id}', 'EntryManifestController@patch')
+->middleware('role:PELAKSANA,CONSOLE');
+
 // EXCEL API
 // ====================================================
 // parse excel file for initial data input

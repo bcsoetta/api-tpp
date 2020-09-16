@@ -10,6 +10,7 @@ use App\Keterangan;
 use App\Lokasi;
 use App\Penetapan;
 use App\Penyelesaian;
+use App\Rack;
 use App\ReferensiDokumenPenyelesaian;
 use App\SSOUserCache;
 use App\TPS;
@@ -19,6 +20,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use PDOException;
+use stdClass;
 use Throwable;
 
 class EntryManifestController extends ApiController
@@ -686,5 +688,88 @@ class EntryManifestController extends ApiController
             DB::rollBack();
             return $this->errorBadRequest($e->getMessage());
         }
+    }
+
+    /**
+     * PATCH
+     */
+    public function patch(Request $r, $id) {
+        DB::beginTransaction();
+
+        try {
+            // commit
+            $ops = json_decode($r->getContent());
+
+            $m = EntryManifest::findOrFail($id);
+
+            // iterate over each op
+            foreach ($ops as $op) {
+                switch ($op->op) {
+                    case "update-rack":
+                        $this->updateRack($r, $m, $op);
+                    break;
+                    default:
+                        throw new \Exception("Unknown operation '{$op->op}'");
+                }
+            }
+
+            // commit here, and return 204
+            DB::commit();
+
+            return $this->setStatusCode(204)
+                    ->respondWithEmptyBody();
+        } catch (\Throwable $e) {
+            DB::rollBack();
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
+
+    /**
+     * PATCH OP
+     * update racking
+     */
+    protected function updateRack(Request $r, EntryManifest $m, $opdata) {
+        // ok, first, only valid criterion is:
+        // 1. unlocked
+        // 2. hasn't been gated out
+        throw new \Exception("Am i being called?");
+
+        // if locked, fail
+        if ($m->is_locked) {
+            throw new \Exception("Entry Manifest sudah terkunci!");
+        }
+
+        // if not gated in yet, fail
+        if (!$m->waktu_gate_in) {
+            throw new \Exception("Entry Manifest belum digate-in");
+        }
+
+        // if last tracking is gate out, throw error
+        if ($m->last_tracking->lokasi->nama == 'GATEOUT') {
+            throw new \Exception("Barang sudah di gate out!");
+        }
+
+        // okay, safe to go on
+        if (!isset($opdata->data->rack_id)) {
+            throw new \Exception("ID Rak tidak disediakan!");
+        }
+        $rack_id = $opdata->data->rack_id;
+
+        // spawn the rack
+        $rack = Rack::findOrFail($rack_id);
+
+        // generate tracking data!
+        $petugas = SSOUserCache::byId($r->userInfo['user_id']);
+        $t = new Tracking();
+        $t->petugas()->associate($petugas);
+        $t->lokasi()->associate($rack);
+        $m->tracking()->save($t);
+
+        // log it
+        AppLog::logInfo(
+            "Racking entry manifest {$m->id} diupdate oleh {$r->userInfo['username']}",
+            $m,
+            false
+        );
     }
 }

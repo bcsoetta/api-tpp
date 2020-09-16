@@ -68,6 +68,14 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return null;
     }
 
+    public function getWaktuGateOutAttribute() {
+        $t = $this->tracking()->byLokasi(Lokasi::find(3))->first();
+        if ($t) {
+            return $t->created_at;
+        }
+        return null;
+    }
+
     public function getDaysTillNowAttribute() {
         // kalau belum pernah digate in, berarti 0 (gratis)
         if (!$this->waktu_gate_in) {
