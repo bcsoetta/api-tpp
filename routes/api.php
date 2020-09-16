@@ -240,3 +240,24 @@ Route::post('/pnbp', 'PNBPController@store')
 // GET /pdf?doc=lembarhitungcd&id=2
 Route::get('/pdf', 'PDFController@show')
         ;
+
+//====================================================================================================
+// ENDPOINTS RACK
+//====================================================================================================
+Route::get('/rack', 'RackController@index')
+->middleware('role');
+
+Route::get('/rack/{id}', 'RackController@show')
+->middleware('role');
+
+Route::get('/rack/{kode}', 'RackController@showByKode')
+->middleware('role');
+
+Route::post('/rack', 'RackController@store')
+->middleware('role:CONSOLE');
+
+Route::put('/rack/{id}', 'RackController@update')
+->middleware('role:CONSOLE');
+
+Route::delete('/rack/{id}', 'RackController@delete')
+->middleware('role:CONSOLE');
