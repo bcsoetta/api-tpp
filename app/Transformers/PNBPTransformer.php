@@ -18,6 +18,7 @@ class PNBPTransformer extends TransformerAbstract {
     public function transform(PNBP $p) {
         return [
             'id' => (int) $p->id,
+            'no_dok' => (int) $p->no_dok,
             'nomor_lengkap_dok' => (string) $p->nomor_lengkap_dok,
             'tgl_dok' => (string) $p->tgl_dok,
             'entry_manifest_id' => (int) $p->entry_manifest_id,

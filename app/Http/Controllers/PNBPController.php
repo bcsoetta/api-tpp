@@ -162,6 +162,18 @@ class PNBPController extends ApiController
             $nama_bidang = expectSomething($r->get('nama_bidang'), 'Nama Bidang');
             $nama_jabatan = expectSomething($r->get('nama_jabatan'), 'Nama Jabatan Seksi');
             $kode_surat = expectSomething($r->get('kode_surat'), 'Kode Surat PNBP');
+            $no_dok = expectSomething($r->get('no_dok'), 'Nomor Urut PNBP');
+            $tgl_dok = expectSomething($r->get('tgl_dok'), 'Tanggal PNBP');
+
+            // pastikan no_dok adalah nomor
+            if (!(is_numeric($no_dok) && is_integer($no_dok) && $no_dok > 0 )) {
+                throw new \Exception("nomor urut PNBP tidak valid (bukan angka)!");
+            }
+
+            // gotta check if there exist a pnbp with that number
+            if (PNBP::where('no_dok', $no_dok)->count() > 0) {
+                throw new \Exception("Nomor urut PNBP '{$no_dok}' sudah terpakai!");
+            }
             
             // grab entry manifest, and check
             $m = EntryManifest::findOrFail($entry_manifest_id);
@@ -182,9 +194,13 @@ class PNBPController extends ApiController
             $pnbp->nama_jabatan = $nama_jabatan;
             $pnbp->kode_surat = $kode_surat;
 
+            // set penomoran manual
+            $pnbp->no_dok = $no_dok;
+            $pnbp->tgl_dok = $tgl_dok;
+            $pnbp->nomor_lengkap_dok = $pnbp->nomor_lengkap;
             // save, and set nomor dokumen
             $pnbp->save();
-            $pnbp->setNomorDokumen();
+            // $pnbp->setNomorDokumen();
 
             // log the entry manifest?
             $m->appendStatus(
