@@ -216,11 +216,12 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         });
     }
 
-    // siap digate out := sudah ada penyelesaian & belum gate out
+    // siap digate out := sudah ada penyelesaian & belum gate out & PERNAH gate in
     public function scopeSiapGateOut($query) {
         return $query->whereHas('penyelesaian')
                     ->locked()
                     ->hasGateOut(false)
+                    ->agedSinceGateIn()
                     ;
     }
 
