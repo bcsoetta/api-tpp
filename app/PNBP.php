@@ -136,7 +136,7 @@ class PNBP extends AbstractDokumen
             return false;
         }
 
-        $total_hari = $this->entryManifest->days_till_now;
+        $total_hari = min(60, $this->entryManifest->days_till_now);
 
         // if days till now is zero, bail
         if (!$total_hari) {
