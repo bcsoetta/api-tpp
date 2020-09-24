@@ -196,7 +196,8 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
                 })
                 // but doesn't have baCacah
                 ->whereDoesntHave('baCacah')
-                ->unlocked();
+                ;
+                // ->unlocked();
     }
 
     // siap dipnbp (udh berumur sejak gate in + sudah ada penyelesaian)
