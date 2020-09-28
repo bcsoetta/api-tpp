@@ -88,6 +88,12 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $diff->days;
     }
 
+    public function getWaktuTimbunAttribute() {
+        $start =  date_create($this->waktu_gate_in ? $this->waktu_gate_in->toDateString() : '') ;
+        $end =  date_create($this->waktu_gate_out ? $this->waktu_gate_out->toDateString() : '') ;
+        return date_diff($start, $end)->days;
+    }
+
     public function getPosFormattedAttribute() {
         return str_pad($this->pos, 4, '0', STR_PAD_LEFT) . '.'
         .   str_pad($this->subpos, 4, '0', STR_PAD_LEFT) . '.'
@@ -216,6 +222,14 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         });
     }
 
+    // hasAged
+    public function scopeAgeSinceGateIn($query, $op='>=', $age=0) {
+        return $query->whereHas('status', function ($q) use ($op, $age) {
+            $q->where('status', 'GATE-IN')
+                ->whereRaw("DATEDIFF(NOW(), status.created_at) $op $age");
+        });
+    }
+
     // siap digate out := sudah ada penyelesaian & belum gate out & PERNAH gate in
     public function scopeSiapGateOut($query) {
         return $query->whereHas('penyelesaian')
@@ -246,6 +260,27 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $query->whereHas('bcp', function ($q) {
             $q->where('jenis', 'BDN');
         });
+    }
+
+    // scope siap bmn
+    // BTD
+    public function scopeBTDSiapBMN($query) {
+        // either BTD >= 60 hr OR BDN >= 30 hr
+        return $query->whereHas('bcp', function ($q) { $q->where('jenis', 'BTD'); })
+                    ->ageSinceGateIn('>=', 60);
+    }
+    // BDN
+    public function scopeBDNSiapBMN($query) {
+        // either BTD >= 60 hr OR BDN >= 30 hr
+        return $query->whereHas('bcp', function ($q) { $q->where('jenis', 'BDN'); })
+                    ->ageSinceGateIn('>=', 30);
+    }
+    // ALL
+    public function scopeSiapBMN($query) {
+        return $query->BTDSiapBMN()
+                    ->orWhere(function ($query) {
+                        $query->BDNSiapBMN();
+                    });
     }
 
     // rollback Gate In

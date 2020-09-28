@@ -780,4 +780,25 @@ class EntryManifestController extends ApiController
             false
         );
     }
+
+    // count siap BMN
+    public function siapBMNCount(Request $r) {
+        try {
+            // simply return array of information
+            $r = EntryManifest::siapBMN()->with('bcp')->get();
+            // group, map and convert
+            $arr = $r->groupBy('bcp.jenis')
+                ->map(function($e) {
+                    return $e->count();
+                })
+                ->toArray();
+
+            // append total
+            $arr['total'] = array_reduce($arr, function($accum, $e){ return $accum + $e; }, 0);
+            
+            return $this->respondWithArray($arr);
+        } catch (\Throwable $e) {
+            return $this->errorBadRequest($e->getMessage());
+        }
+    }
 }

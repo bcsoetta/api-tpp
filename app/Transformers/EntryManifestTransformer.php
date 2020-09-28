@@ -59,7 +59,9 @@ class EntryManifestTransformer extends TransformerAbstract {
 
             'is_locked' => $m->is_locked,
             'waktu_gate_in' => (string) $m->waktu_gate_in,
-            'waktu_gate_out' => (string) $m->waktu_gate_out
+            'waktu_gate_out' => (string) $m->waktu_gate_out,
+
+            'waktu_timbun' => (int) $m->waktu_timbun
         ];
     }
 

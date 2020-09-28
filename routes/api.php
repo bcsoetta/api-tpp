@@ -110,6 +110,10 @@ Route::put('/awb/{id}/penyelesaian', 'EntryManifestController@storePenyelesaian'
 Route::patch('/awb/{id}', 'EntryManifestController@patch')
 ->middleware('role:PELAKSANA,CONSOLE');
 
+// find out how many ready to convert to BMN
+Route::get('/awb/siap_bmn', 'EntryManifestController@siapBMNCount')
+->middleware('role');
+
 // EXCEL API
 // ====================================================
 // parse excel file for initial data input
