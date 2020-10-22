@@ -13,6 +13,10 @@ class PNBP extends AbstractDokumen
         'updated_at'
     ];
 
+    protected $attributes = [
+        'manual' => false
+    ];
+
     // relation
     public function entryManifest() {
         return $this->belongsTo(EntryManifest::class, 'entry_manifest_id');
@@ -60,7 +64,7 @@ class PNBP extends AbstractDokumen
     /**
      * Generate PNBP from entry manifest
      */
-    public static function generatePNBP(EntryManifest $m) {
+    public static function generatePNBP(EntryManifest $m, $tglGateOut = null) {
         if (!$m) {
             throw new \Exception("Entry Manifest is null!");
         }
@@ -76,6 +80,8 @@ class PNBP extends AbstractDokumen
         }
 
         // harus sudah berumur
+        $m->waktu_gate_out_mockup = $tglGateOut;
+
         if (!$m->days_till_now) {
             throw new \Exception("Masa timbun di TPP < 1 hari, tidak bisa dibuatkan PNBP!");
         }
@@ -87,7 +93,7 @@ class PNBP extends AbstractDokumen
         }
 
         // okay, grab all necessary data
-        $tgl_dok = date('Y-m-d');
+        $tgl_dok = $tglGateOut ?? date('Y-m-d');
         $tgl_gate_in = $m->waktu_gate_in->toDateString();
         $tgl_gate_out = $tgl_dok;
         $total_hari = min(60, $m->days_till_now);

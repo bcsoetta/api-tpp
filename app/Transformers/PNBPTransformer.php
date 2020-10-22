@@ -35,6 +35,8 @@ class PNBPTransformer extends TransformerAbstract {
 
             'is_locked' => $p->is_locked,
 
+            'manual' => (bool) $p->manual,
+
             'tgl_gate_in_text' => formatTanggal($p->tgl_gate_in),
             'tgl_gate_out_text' => formatTanggal($p->tgl_gate_out),
 

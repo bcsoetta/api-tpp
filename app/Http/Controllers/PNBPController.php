@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\AppLog;
 use App\EntryManifest;
+use App\Lokasi;
 use App\PNBP;
 use App\SSOUserCache;
+use App\Tracking;
 use App\Transformers\PNBPTransformer;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -142,7 +145,8 @@ class PNBPController extends ApiController
             $m = EntryManifest::findOrFail($id);
 
             // try to generate PNBP from entry manifest
-            $pnbp = PNBP::generatePNBP($m);
+            $pnbp = PNBP::generatePNBP($m, $r->get('tgl_gate_out'));
+            $pnbp->manual = $r->get('manual') ?? false;
 
             return $this->respondWithItem($pnbp, new PNBPTransformer);
         } catch (\Throwable $e) {
@@ -164,6 +168,8 @@ class PNBPController extends ApiController
             $kode_surat = expectSomething($r->get('kode_surat'), 'Kode Surat PNBP');
             $no_dok = expectSomething($r->get('no_dok'), 'Nomor Urut PNBP');
             $tgl_dok = expectSomething($r->get('tgl_dok'), 'Tanggal PNBP');
+            $tgl_gate_out = $r->get('tgl_gate_out');
+            $manual = $r->get('manual') ?? false;
 
             // pastikan no_dok adalah nomor
             if (!(is_numeric($no_dok) && is_integer($no_dok) && $no_dok > 0 )) {
@@ -185,7 +191,7 @@ class PNBPController extends ApiController
             }
 
             // create pnbp dari entry manifest
-            $pnbp = PNBP::generatePNBP($m);
+            $pnbp = PNBP::generatePNBP($m, $tgl_gate_out);
 
             // if success, append data
             // $pnbp = new PNBP();
@@ -198,6 +204,7 @@ class PNBPController extends ApiController
             $pnbp->no_dok = $no_dok;
             $pnbp->tgl_dok = $tgl_dok;
             $pnbp->nomor_lengkap_dok = $pnbp->nomor_lengkap;
+            $pnbp->manual = $manual;
             // save, and set nomor dokumen
             $pnbp->save();
             // $pnbp->setNomorDokumen();
@@ -216,6 +223,55 @@ class PNBPController extends ApiController
                 $pnbp,
                 false
             );
+
+
+            // kalo manual, skalian rekam bukti lunas + gate out
+            if ($manual) {
+                // first, lock the pnbp
+                $pnbp->lock()->create([
+                    'petugas_id' => $r->userInfo['user_id']
+                ]);
+
+                // append status utk entry manifestnya
+                $m->appendStatus(
+                    'PNBP LUNAS',
+                    null, 
+                    "Bukti Pelunasan PNBP sudah direkam oleh {$r->userInfo['username']}", 
+                    $pnbp
+                );
+
+                AppLog::logInfo("Bukti lunas PNBP #{$pnbp->id} direkam oleh {$r->userInfo['username']}", $pnbp, false);
+                
+                // pastikan belum gate out
+                $hasGateOut = $m->tracking()->byLokasi(Lokasi::byKode('GATEOUT')->first())->count();
+
+                // only process if hasn't gate out
+                if (!$hasGateOut) {
+                    // first, append status Gate Out
+                    // $m = new EntryManifest();
+                    $m->appendStatus(
+                        'GATE-OUT',
+                        null,
+                        "Entry Manifest sudah di Gate-Out oleh {$r->userInfo['username']}"
+                    );
+
+                    // update tracking
+                    $t = new Tracking();
+                    $t->petugas()->associate(SSOUserCache::byId($r->userInfo['user_id']));
+                    $t->lokasi()->associate(Lokasi::byKode('GATEOUT')->first());
+
+                    $t->created_at = $t->updated_at = $tgl_gate_out ?? date('Y-m-d') . ' ' . date('H:i:s');
+
+                    $m->tracking()->save($t, ['timestamps' => false]);
+
+                    // log
+                    AppLog::logInfo(
+                        "Entry Manifest #{$m->id} di gate out oleh {$r->userInfo['username']}",
+                        $m,
+                        false
+                    );
+                }
+            }
 
             // commit
             DB::commit();

@@ -83,7 +83,7 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         }
 
         $start = date_create($this->waktu_gate_in->toDateString());
-        $end = date_create( date('Y-m-d') );
+        $end = date_create( $this->waktu_gate_out_mockup ?? date('Y-m-d') );
         $diff = date_diff($start, $end);
         return $diff->days;
     }
