@@ -100,9 +100,9 @@ class PNBPController extends ApiController
                     }
 
                     // check apakah perlu diperbaharui perhitungannya
-                    if ($pnbp->total_hari != $m->days_till_now) {
+                    /* if ($pnbp->total_hari != $m->days_till_now) {
                         throw new \Exception("Total hari di TPP sudah berbeda dari perhitungan awal (awal: {$pnbp->total_hari} hari, sekarang: {$m->days_till_now} hari). Harap perbarui perhitungan PNBP!");
-                    }
+                    } */
 
                     // first, lock the pnbp
                     $pnbp->lock()->create([
