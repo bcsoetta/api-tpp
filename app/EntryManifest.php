@@ -26,6 +26,11 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         'deleted_at'
     ];
 
+    protected static $excludedStats = [
+        'MULAI PENCACAHAN',
+        'PENCACAHAN'
+    ];
+
     // relations
     public function tps() {
         return $this->belongsTo(TPS::class, 'tps_id');
@@ -57,6 +62,11 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
 
     public function pnbp() {
         return $this->hasOne(PNBP::class, 'entry_manifest_id');
+    }
+
+    // exclude some certain stats possibly
+    public function status() {
+        return $this->morphMany('App\Status', 'statusable')->whereNotIn('status', EntryManifest::$excludedStats);
     }
 
     // custom attributes
