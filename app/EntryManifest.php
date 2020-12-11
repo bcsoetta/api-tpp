@@ -236,7 +236,7 @@ class EntryManifest extends Model implements INotable, IHasGoods, ITrackable, IL
         return $query->whereHas('penyelesaian')
                     ->locked()
                     ->hasGateOut(false)
-                    ->agedSinceGateIn()
+                    // ->agedSinceGateIn()
                     ;
     }
 
