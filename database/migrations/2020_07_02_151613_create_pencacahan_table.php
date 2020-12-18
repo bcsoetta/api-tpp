@@ -18,8 +18,6 @@ class CreatePencacahanTable extends Migration
 
             // pencacahan atas apa?
             $table->unsignedBigInteger('entry_manifest_id');
-            // who does it
-            $table->unsignedInteger('petugas_id');
             $table->enum('kondisi_barang',[
                 'Baik/Baru',
                 'Baik/Bekas',
@@ -32,7 +30,6 @@ class CreatePencacahanTable extends Migration
             $table->timestamps();
 
             // ===================INDEX AND FOREIGN KEYS===============================
-            $table->foreign('petugas_id','pencacahan_petugas_id_sso_ucache')->references('user_id')->on('sso_user_cache');
             $table->foreign('entry_manifest_id')->references('id')->on('entry_manifest');
         });
     }

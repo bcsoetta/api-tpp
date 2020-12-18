@@ -6,14 +6,12 @@ use League\Fractal\TransformerAbstract;
 
 class PencacahanTransformer extends TransformerAbstract {
     protected $availableIncludes = [
-        'petugas',
         'entryManifest',
         'barang'
     ];
 
     protected $defaultIncludes = [
-        'barang',
-        'petugas'
+        'barang'
     ];
 
     public function transform(Pencacahan $p) {
@@ -30,12 +28,6 @@ class PencacahanTransformer extends TransformerAbstract {
             'created_at' => (string) $p->created_at,
             'updated_at' => (string) $p->updated_at,
         ];
-    }
-
-    public function includePetugas(Pencacahan $p) {
-        if ($p->petugas) {
-            return $this->item($p->petugas, spawnTransformer($p->petugas));
-        }
     }
 
     public function includeEntryManifest(Pencacahan $p) {

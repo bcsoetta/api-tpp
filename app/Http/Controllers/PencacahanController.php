@@ -37,21 +37,10 @@ class PencacahanController extends ApiController
                     'kondisi_barang' => $r->get('kondisi_barang', 'Baik'),
                     'peruntukan_awal' => $r->get('peruntukan_awal', 'DILELANG')
                 ]);
-                $p->petugas()->associate(SSOUserCache::byId($r->userInfo['user_id']));
                 $p->entryManifest()->associate($m);
 
                 // save it and return 204
                 $p->save();
-
-                // log activity
-                /* $m->appendStatus(
-                    'MULAI PENCACAHAN', 
-                    null, 
-                    "Pencacahan dimulai oleh {$r->userInfo['username']}", 
-                    $p
-                ); */
-
-                // AppLog::logInfo("EntryManifest #{$m->id} dimulai pencacahannya oleh {$r->userInfo['username']}", $m, false);
             } else {
                 // update it
                 // if it's locked, throw error
@@ -62,8 +51,6 @@ class PencacahanController extends ApiController
                 // go on
                 $p->kondisi_barang = expectSomething($r->get('kondisi_barang'), 'Kondisi Barang');
                 $p->peruntukan_awal = expectSomething($r->get('peruntukan_awal'), 'Peruntukan Awal');
-
-                $p->petugas()->associate(SSOUserCache::byId($r->userInfo['user_id']));
 
                 $p->save();
 
@@ -107,15 +94,6 @@ class PencacahanController extends ApiController
                 }
 
                 // throw new \Exception("To Sync: " . count($toSync). ", To Insert: " . count($toInsert));
-                // log activity
-                /* $m->appendStatus(
-                    'PENCACAHAN', 
-                    null, 
-                    "Data Pencacahan diupdate oleh {$r->userInfo['username']}", 
-                    $p
-                ); */
-
-                // AppLog::logInfo("EntryManifest #{$m->id} diupdate pencacahannya oleh {$r->userInfo['username']}", $m, false);
             }            
 
             DB::commit();
